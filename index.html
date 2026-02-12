@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sanaclis × 4LIVE — The Missing Brain</title>
+  <meta name="description" content="Confidential strategic proposal: The Missing Brain — predictive intelligence overlay for clinical research & operations." />
+  <style>
+    :root{
+      --bg: #ffffff;
+      --bg2:#fbfcff;
+      --text:#0b1220;
+      --muted:#475569;
+      --muted2:#64748b;
+
+      --card: rgba(255,255,255,.78);
+      --card2: rgba(255,255,255,.60);
+      --stroke: rgba(15, 23, 42, .10);
+
+      --accent1:#1d4ed8; /* royal */
+      --accent2:#7c3aed; /* violet */
+      --accent3:#06b6d4; /* cyan */
+
+      --shadow1: 0 20px 60px rgba(2, 8, 23, .10);
+      --shadow2: 0 10px 30px rgba(2, 8, 23, .08);
+      --radius: 18px;
+      --radius2: 26px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+
+      --glow: 0 0 30px rgba(6,182,212,.30), 0 0 70px rgba(124,58,237,.18);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% 0%, rgba(29,78,216,.10), transparent 55%),
+        radial-gradient(1000px 700px at 95% 10%, rgba(124,58,237,.10), transparent 55%),
+        radial-gradient(1000px 700px at 40% 90%, rgba(6,182,212,.08), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* ======= 3D gene layer (canvas + CSS helix) ======= */
+    .geneStage{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:0;
+      overflow:hidden;
+    }
+    canvas#geneCanvas{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      filter: saturate(1.1);
+      opacity:.92;
+    }
+
+    /* Two CSS helices as “foreground 3D” */
+    .helixWrap{
+      position:absolute;
+      inset: -10% -10%;
+      display:block;
+      transform-style: preserve-3d;
+      perspective: 1200px;
+      opacity:.28;
+      mix-blend-mode: multiply;
+    }
+    .helix{
+      position:absolute;
+      width: 520px;
+      height: 980px;
+      left: 8%;
+      top: 6%;
+      transform-style: preserve-3d;
+      filter: drop-shadow(0 40px 70px rgba(2,8,23,.18));
+      animation: float1 12s ease-in-out infinite;
+    }
+    .helix.right{
+      left:auto;
+      right: 6%;
+      top: 10%;
+      width: 460px;
+      height: 860px;
+      opacity:.35;
+      animation: float2 14s ease-in-out infinite;
+      mix-blend-mode: multiply;
+    }
+
+    @keyframes float1{
+      0%,100%{ transform: rotateY(-14deg) rotateX(10deg) translate3d(0,0,0); }
+      50%{ transform: rotateY(-8deg) rotateX(6deg) translate3d(0,-18px,0); }
+    }
+    @keyframes float2{
+      0%,100%{ transform: rotateY(16deg) rotateX(10deg) translate3d(0,0,0); }
+      50%{ transform: rotateY(10deg) rotateX(7deg) translate3d(0,-14px,0); }
+    }
+
+    /* Each “ring” element is a base-pair */
+    .ring{
+      position:absolute;
+      left:50%;
+      top:0;
+      width: 320px;
+      height: 22px;
+      transform-style:preserve-3d;
+      transform: translateX(-50%) translateY(var(--y)) rotateY(var(--ry)) translateZ(var(--z));
+      opacity: var(--o);
+    }
+    .ring:before,
+    .ring:after{
+      content:"";
+      position:absolute; top:50%;
+      width: 18px; height:18px;
+      border-radius:999px;
+      transform: translateY(-50%);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.55) 50%, rgba(15,23,42,.12) 100%),
+                  linear-gradient(135deg, rgba(29,78,216,.40), rgba(124,58,237,.28));
+      box-shadow:
+        0 10px 24px rgba(2,8,23,.18),
+        0 0 22px rgba(6,182,212,.20);
+      border: 1px solid rgba(15,23,42,.10);
+    }
+    .ring:before{ left:0; }
+    .ring:after{ right:0; }
+
+    .bar{
+      position:absolute;
+      left: 28px; right: 28px;
+      top:50%;
+      height: 3px;
+      transform: translateY(-50%);
+      border-radius:999px;
+      background: linear-gradient(90deg,
+        rgba(29,78,216,.25),
+        rgba(6,182,212,.25),
+        rgba(124,58,237,.25));
+      box-shadow: var(--glow);
+      opacity:.9;
+    }
+
+    /* Spin the helix as a whole while “twist” comes from per-ring rotation */
+    .spin{
+      position:absolute; inset:0;
+      transform-style:preserve-3d;
+      animation: spin 8.5s linear infinite;
+    }
+    .right .spin{ animation-duration: 10.5s; }
+    @keyframes spin{
+      from{ transform: rotateZ(2deg) rotateY(0deg); }
+      to  { transform: rotateZ(2deg) rotateY(360deg); }
+    }
+
+    /* ======= layout ======= */
+    .wrap{
+      position:relative;
+      z-index:2;
+      max-width:1180px;
+      margin:0 auto;
+      padding:24px 18px 80px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:12px 14px;
+      border: 1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+      position:sticky;
+      top:14px;
+      z-index:10;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+      letter-spacing:.2px;
+      color:#0b1220;
+    }
+
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,1), rgba(255,255,255,.75) 40%, rgba(15,23,42,.08) 100%),
+        linear-gradient(135deg, rgba(29,78,216,.20), rgba(124,58,237,.18));
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow: 0 12px 26px rgba(2,8,23,.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(6,182,212,.22), transparent 55%),
+                  radial-gradient(circle at 70% 70%, rgba(124,58,237,.18), transparent 55%);
+      transform: rotate(18deg);
+      opacity:.9;
+      animation: sheen 6s ease-in-out infinite;
+    }
+    @keyframes sheen{
+      0%,100%{ transform: translate3d(-8%, -6%, 0) rotate(18deg); }
+      50%{ transform: translate3d(8%, 6%, 0) rotate(18deg); }
+    }
+
+    .tag{
+      font-family:var(--mono);
+      font-size:11.5px;
+      color: rgba(2, 8, 23, .70);
+      background: rgba(2, 8, 23, .04);
+      border:1px solid rgba(2, 8, 23, .08);
+      padding:6px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      font-size:13px;
+      color: var(--muted);
+    }
+    .nav a{
+      text-decoration:none;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      color: var(--muted);
+      transition: .15s ease;
+    }
+    .nav a:hover{
+      border-color: rgba(2,8,23,.10);
+      background: rgba(255,255,255,.70);
+      color: var(--text);
+      box-shadow: 0 10px 22px rgba(2,8,23,.06);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid rgba(2,8,23,.10);
+      background: rgba(255,255,255,.70);
+      color: var(--text);
+      text-decoration:none;
+      font-weight:750;
+      box-shadow: 0 12px 26px rgba(2,8,23,.08);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 38px rgba(2,8,23,.10);
+      background: rgba(255,255,255,.85);
+    }
+    .btn.primary{
+      border-color: rgba(29,78,216,.22);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(6,182,212,.22), transparent 60%),
+        radial-gradient(circle at 90% 30%, rgba(124,58,237,.20), transparent 55%),
+        linear-gradient(135deg, rgba(29,78,216,.14), rgba(124,58,237,.10));
+    }
+
+    .hero{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+      align-items:stretch;
+    }
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr;}
+      .topbar{position:relative; top:auto;}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.70));
+      border: 1px solid rgba(2,8,23,.10);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow1);
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(6,182,212,.14), transparent 55%),
+        radial-gradient(circle at 75% 35%, rgba(124,58,237,.12), transparent 55%),
+        radial-gradient(circle at 40% 85%, rgba(29,78,216,.10), transparent 60%);
+      transform: rotate(10deg);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .card .inner{position:relative; padding:22px;}
+
+    .pill{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      border:1px solid rgba(2,8,23,.10);
+      background: rgba(255,255,255,.74);
+      padding:8px 12px;
+      border-radius:999px;
+      color: var(--muted);
+      font-size:12.5px;
+      box-shadow: 0 10px 22px rgba(2,8,23,.06);
+    }
+    .pill b{color:var(--text); font-weight:800}
+
+    .h1{
+      font-size:46px;
+      line-height:1.04;
+      margin:12px 0 14px;
+      letter-spacing:-.8px;
+    }
+    @media (max-width: 520px){ .h1{font-size:36px} }
+    .sub{
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.6;
+      max-width:62ch;
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:18px;
+    }
+    @media (max-width: 980px){ .metrics{grid-template-columns:1fr} }
+
+    .metric{
+      border: 1px solid rgba(2,8,23,.10);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.72);
+      padding:14px 14px 12px;
+      box-shadow: 0 10px 22px rgba(2,8,23,.06);
+    }
+    .metric .k{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:-.4px;
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      color:#0b1220;
+    }
+    .metric .k small{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted2);
+      letter-spacing:.9px;
+      text-transform:uppercase;
+    }
+    .metric .t{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.45;
+    }
+
+    .side{display:flex; flex-direction:column; gap:12px;}
+    .panel{
+      border: 1px solid rgba(2,8,23,.10);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 26px rgba(2,8,23,.07);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom: 1px solid rgba(2,8,23,.08);
+      background: rgba(255,255,255,.75);
+    }
+    .panel .hd b{
+      font-size:12.5px;
+      letter-spacing:.7px;
+      text-transform:uppercase;
+      color:#0b1220;
+    }
+    .panel .bd{
+      padding:14px 16px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .section{margin-top:18px;}
+    .title{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      margin:28px 0 10px;
+    }
+    .title h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.2px;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:13.5px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .col-7{grid-column: span 7;}
+    .col-5{grid-column: span 5;}
+    .col-6{grid-column: span 6;}
+    .col-12{grid-column: span 12;}
+    @media (max-width: 980px){
+      .col-7,.col-5,.col-6{grid-column: span 12;}
+    }
+
+    .list{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px;}
+    .li{
+      padding:14px 14px 12px;
+      border-radius: var(--radius);
+      border:1px solid rgba(2,8,23,.10);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 22px rgba(2,8,23,.06);
+    }
+    .li b{display:block; margin-bottom:6px;}
+    .li span{color:var(--muted); font-size:13.5px; line-height:1.55; display:block;}
+
+    .steps{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .steps{grid-template-columns:1fr;} }
+    .step{
+      padding:16px;
+      border:1px solid rgba(2,8,23,.10);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 26px rgba(2,8,23,.07);
+      position:relative;
+      overflow:hidden;
+    }
+    .step:before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(6,182,212,.16), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(124,58,237,.14), transparent 55%);
+      transform: rotate(8deg);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .step > *{position:relative;}
+    .step .n{
+      font-family:var(--mono);
+      font-weight:900;
+      letter-spacing:.8px;
+      color: rgba(2,8,23,.55);
+      font-size:12px;
+      text-transform:uppercase;
+    }
+    .step h3{margin:10px 0 8px; font-size:18px;}
+    .step p{margin:0; color:var(--muted); font-size:13.5px; line-height:1.6;}
+
+    .pricing{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .pricing{grid-template-columns:1fr;} }
+    .price{
+      border:1px solid rgba(2,8,23,.10);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 26px rgba(2,8,23,.07);
+      overflow:hidden;
+      position:relative;
+    }
+    .price .top{
+      padding:16px 16px 10px;
+      border-bottom:1px solid rgba(2,8,23,.08);
+      background: rgba(255,255,255,.78);
+    }
+    .price .top b{
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      font-size:12px;
+      color:#0b1220;
+    }
+    .price .top .p{
+      margin-top:8px;
+      font-size:26px;
+      font-weight:950;
+      letter-spacing:-.4px;
+    }
+    .price .mid{padding:14px 16px 16px;}
+    .price ul{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.6;}
+    .price li{margin:6px 0;}
+    .note{font-size:12.5px; color:var(--muted2); line-height:1.55; margin-top:10px;}
+
+    .callout{
+      border:1px solid rgba(29,78,216,.16);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(6,182,212,.18), transparent 60%),
+        radial-gradient(circle at 90% 40%, rgba(124,58,237,.14), transparent 55%),
+        linear-gradient(135deg, rgba(29,78,216,.08), rgba(124,58,237,.06));
+      border-radius: var(--radius2);
+      padding:18px;
+      box-shadow: 0 14px 30px rgba(2,8,23,.07);
+    }
+    .callout b{display:block; font-size:14px; letter-spacing:.2px;}
+    .callout p{margin:8px 0 0; color:var(--muted); line-height:1.6; font-size:13.5px;}
+
+    .footer{
+      margin-top:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: rgba(2,8,23,.55);
+      font-size:12.5px;
+      flex-wrap:wrap;
+      padding:14px 4px 0;
+    }
+
+    /* Accessibility: reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .helixWrap, .spin { animation: none !important; }
+      .helix { animation: none !important; }
+      canvas#geneCanvas{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 3D spinning genes backdrop -->
+  <div class="geneStage" aria-hidden="true">
+    <canvas id="geneCanvas"></canvas>
+
+    <div class="helixWrap">
+      <div class="helix">
+        <div class="spin" id="helixA"></div>
+      </div>
+      <div class="helix right">
+        <div class="spin" id="helixB"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <span>Sanaclis × 4LIVE</span>
+            <span class="tag">CONFIDENTIAL · 2026</span>
+          </div>
+          <div style="font-size:12.5px; color:var(--muted); margin-top:2px;">
+            The Missing Brain — Predictive Intelligence for Clinical Research
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <a href="#why">Why</a>
+        <a href="#numbers">Numbers</a>
+        <a href="#pilot">Validation</a>
+        <a href="#offer">Offer</a>
+        <a href="#security">Security</a>
+        <a href="#cta">Next step</a>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="card">
+        <div class="inner">
+          <div class="pill">
+            <b>The Missing Brain</b>
+            <span>Predict · Prevent · Dominate</span>
+          </div>
+
+          <div class="h1">Securing the Future of Clinical Research for Sanaclis</div>
+
+          <div class="sub">
+            Sanaclis already owns the <b>Body</b>: logistics, infrastructure, resilience, execution.
+            4LIVE adds the <b>Brain</b>: predictive intelligence that turns every dataset into actionable foresight —
+            faster decisions, lower costs, and stronger client lock-in.
+          </div>
+
+          <div class="metrics" id="numbers">
+            <div class="metric">
+              <div class="k">20× <small>FASTER</small></div>
+              <div class="t">Accelerate analysis and decision loops from months to days.</div>
+            </div>
+            <div class="metric">
+              <div class="k">40× <small>CHEAPER</small></div>
+              <div class="t">In-silico modeling replaces expensive manual bottlenecks.</div>
+            </div>
+            <div class="metric">
+              <div class="k">50% <small>PRICE OFFER</small></div>
+              <div class="t">Win clients with disruptive pricing while preserving margin.</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+            <a class="btn primary" href="#cta">Schedule 30-min call</a>
+            <a class="btn" href="#pilot">Start validation pilots</a>
+            <span class="pill"><b>Ready</b> for immediate deployment (in-silico overlay)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="panel">
+          <div class="hd">
+            <b>Executive Snapshot</b>
+            <span class="tag">Body + Brain = Dominance</span>
+          </div>
+          <div class="bd">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div><b>Goal:</b> Market domination — the only CRO with a predictive “Brain”.</div>
+              <div><b>Approach:</b> Validation first (3–5 projects). Seeing is believing.</div>
+              <div><b>Outcome:</b> Faster execution, cost efficiency, compliance-ready explainability.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="hd">
+            <b>Implementation Timeline</b>
+            <span class="tag">~3 months</span>
+          </div>
+          <div class="bd">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div><b>Month 1:</b> Validation — ingest 3–5 pilot projects, target outcomes.</div>
+              <div><b>Month 2:</b> Calibration — refine predictive models, align to workflows.</div>
+              <div><b>Month 3:</b> Go-Live — deployment + “disruptive pricing” rollout.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="hd">
+            <b>Payment Structure</b>
+            <span class="tag">Incentive aligned</span>
+          </div>
+          <div class="bd">
+            30% upfront · 70% upon delivery (aligned with results).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <div class="title" id="why">
+      <h2>Why Sanaclis invests now</h2>
+      <p>Turn execution excellence into an intelligence moat.</p>
+    </div>
+
+    <div class="grid section">
+      <div class="col-7">
+        <ul class="list">
+          <li class="li">
+            <b>From logistics provider → global intelligence partner</b>
+            <span>4LIVE acts as a non-invasive intelligence overlay: augment teams, compress timelines, and improve decision quality without disrupting core operations.</span>
+          </li>
+          <li class="li">
+            <b>Disruptive pricing without margin sacrifice</b>
+            <span>Offer <b>50% off</b> data analysis & management rates while maintaining strong profitability through automation.</span>
+          </li>
+          <li class="li">
+            <b>Client lock-in</b>
+            <span>Once clients experience the speed + pricing combination, churn becomes structurally difficult.</span>
+          </li>
+          <li class="li">
+            <b>“In-silico first” mindset</b>
+            <span>Analyze and validate digitally before costly steps. Reduce waste, shorten loops, increase confidence.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-5">
+        <div class="callout">
+          <b>The strategic equation</b>
+          <p>
+            <b>Sanaclis</b> (Body: depots, supply chain, execution) + <b>4LIVE</b> (Brain: predictive intelligence)
+            = <b>unassailable market lead</b>.
+          </p>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="box-shadow: var(--shadow2); background: rgba(255,255,255,.72);">
+          <div class="inner">
+            <div class="pill"><b>Operational excellence</b><span>by the numbers</span></div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+              <div class="li" style="margin:0">
+                <b>Logistics</b>
+                <span><b>+25%</b> efficiency gain via predictive route optimization (e.g., conflict-zone corridors).</span>
+              </div>
+              <div class="li" style="margin:0">
+                <b>Recruitment</b>
+                <span><b>+60%</b> speed increase by identifying pre-symptomatic cohorts.</span>
+              </div>
+              <div class="li" style="margin:0">
+                <b>Data Management</b>
+                <span><b>−90%</b> cost reduction via automation and cleaning.</span>
+              </div>
+              <div class="li" style="margin:0">
+                <b>Compliance</b>
+                <span><b>+40%</b> faster reporting and audit trail generation (XAI).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VALIDATION -->
+    <div class="title" id="pilot">
+      <h2>Validation first (fastest path to certainty)</h2>
+      <p>3–5 pilot projects · targeted outcomes · explainable findings.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="n">Step 01</div>
+        <h3>Send data (anonymized)</h3>
+        <p>
+          Provide historical or current datasets for <b>3–5</b> projects. Focus each dataset on a clear target outcome
+          (attrition drivers, recruitment bottlenecks, supply volatility signals).
+        </p>
+      </div>
+      <div class="step">
+        <div class="n">Step 02</div>
+        <h3>Targeted analysis (in-silico)</h3>
+        <p>
+          4LIVE processes datasets securely and calibrates the engine during a <b>1–3 month</b> training phase across pilots.
+        </p>
+      </div>
+      <div class="step">
+        <div class="n">Step 03</div>
+        <h3>Explainable results dashboard</h3>
+        <p>
+          Deliver findings via a bespoke <b>Sanaclis × 4LIVE</b> dashboard with explainable signals, decision support, and recommendations.
+        </p>
+      </div>
+    </div>
+
+    <!-- OFFER -->
+    <div class="title" id="offer">
+      <h2>The commercial offer</h2>
+      <p>Start with pilots, then lock advantage via exclusivity packages.</p>
+    </div>
+
+    <div class="pricing">
+      <div class="price">
+        <div class="top">
+          <b>Validation Pilots</b>
+          <div class="p">€200k–€250k <span style="font-size:13px; font-weight:800; color:var(--muted2)">/ project</span></div>
+        </div>
+        <div class="mid">
+          <ul>
+            <li>Minimum scope: <b>3–5 projects</b></li>
+            <li>Total upfront range: <b>~€750k–€1.25M</b></li>
+            <li>Payment: <b>30% upfront / 70% on delivery</b></li>
+            <li>Outcome: validated speed + margin thesis on Sanaclis data</li>
+          </ul>
+          <div class="note">Designed to remove “belief” from the process: judge by results.</div>
+        </div>
+      </div>
+
+      <div class="price">
+        <div class="top">
+          <b>1 Year Exclusivity</b>
+          <div class="p">$10M</div>
+        </div>
+        <div class="mid">
+          <ul>
+            <li>Competitive advantage for 12 months</li>
+            <li>Post-validation only (proof before scale)</li>
+            <li>Supports rapid US market penetration strategy</li>
+          </ul>
+          <div class="note">Fees payable to Financial Dynamic Systems LLC (per proposal terms).</div>
+        </div>
+      </div>
+
+      <div class="price">
+        <div class="top">
+          <b>2–3 Year Exclusivity</b>
+          <div class="p">$20M–$30M</div>
+        </div>
+        <div class="mid">
+          <ul>
+            <li><b>2 years:</b> “Dominance” positioning</li>
+            <li><b>3 years:</b> “Monopoly / Total industry control” window</li>
+            <li>Locks out competitor access during the window</li>
+          </ul>
+          <div class="note">Exact structure finalized after validation success and scope alignment.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="title" id="security">
+      <h2>Security, privacy & compliance posture</h2>
+      <p>Designed for high-stakes environments and auditability.</p>
+    </div>
+
+    <div class="grid section">
+      <div class="col-6">
+        <ul class="list">
+          <li class="li">
+            <b>100% in-silico analysis</b>
+            <span>Acts as a digital intelligence layer — no wet-lab processes required for the analytics phase.</span>
+          </li>
+          <li class="li">
+            <b>Explainable AI (XAI) audit trails</b>
+            <span>Outputs designed to be traceable, reviewable, and regulator-friendly.</span>
+          </li>
+          <li class="li">
+            <b>GDPR-aware workflow</b>
+            <span>Anonymized datasets and privacy-preserving approaches (including synthetic controls where needed).</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-6">
+        <ul class="list">
+          <li class="li">
+            <b>Cyber-Bio security framing</b>
+            <span>Biological + operational data treated like a critical security asset.</span>
+          </li>
+          <li class="li">
+            <b>Operational non-disruption</b>
+            <span>Overlay approach: augment workflows without replacing core systems at day one.</span>
+          </li>
+          <li class="li">
+            <b>Designed for scale</b>
+            <span>Multi-omics-ready ingestion philosophy — “devour data” at speed with discipline.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="title" id="cta">
+      <h2>Immediate next step</h2>
+      <p>Greenlight pilots → ingest data → deliver explainable results → decide on exclusivity.</p>
+    </div>
+
+    <div class="card">
+      <div class="inner">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+          <div style="max-width:72ch">
+            <div class="pill"><b>Action</b><span>Start the engine</span></div>
+            <h3 style="margin:12px 0 8px; font-size:22px; letter-spacing:-.2px">Approve 3–5 validation pilots</h3>
+            <div class="sub" style="font-size:14.5px">
+              Objective: demonstrate the <b>20× speed</b> and <b>cost-efficiency thesis</b> on Sanaclis data, then
+              formalize rollout and (optionally) exclusivity packages.
+            </div>
+            <div style="margin-top:12px; color:var(--muted2); font-size:12.5px; line-height:1.6">
+              <b>Note:</b> Email button below is a placeholder — set your address in the HTML (<span class="tag">mailto:</span>).
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px; min-width:280px">
+            <a class="btn primary" href="mailto:">Email: propose 30-min video call</a>
+            <a class="btn" href="#pilot">Review validation steps</a>
+            <span class="pill"><b>Tip:</b><span>Use past projects for “proof fast”</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>© 2026 · Sanaclis × 4LIVE · Confidential Strategic Proposal (snow-white web version)</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <span class="tag">3D genes</span>
+        <span class="tag">Canvas glow</span>
+        <span class="tag">Single file</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======= Build CSS helices (rings) =======
+    function buildHelix(containerId, ringCount, heightPx) {
+      const host = document.getElementById(containerId);
+      if (!host) return;
+      host.innerHTML = "";
+      // Build rings with z-depth + opacity to simulate volume.
+      for (let i = 0; i < ringCount; i++) {
+        const ring = document.createElement("div");
+        ring.className = "ring";
+        const y = (i / (ringCount - 1)) * heightPx;
+        // Rotate each ring around Y so the end caps appear alternating (twist)
+        const ry = (i * 18) % 360;
+        // Z oscillation to fake depth
+        const z = Math.sin(i * 0.35) * 46; // px
+        const o = 0.55 + 0.45 * (0.5 + 0.5 * Math.cos(i * 0.22));
+        ring.style.setProperty("--y", `${y}px`);
+        ring.style.setProperty("--ry", `${ry}deg`);
+        ring.style.setProperty("--z", `${z}px`);
+        ring.style.setProperty("--o", `${o.toFixed(3)}`);
+
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        ring.appendChild(bar);
+
+        host.appendChild(ring);
+      }
+    }
+
+    buildHelix("helixA", 46, 920);
+    buildHelix("helixB", 40, 800);
+
+    // ======= Canvas gene particles + helix ribbons (additive glow on white) =======
+    const canvas = document.getElementById("geneCanvas");
+    const ctx = canvas.getContext("2d", { alpha: true });
+
+    let W = 0, H = 0, DPR = 1;
+    function resize() {
+      DPR = Math.min(2, window.devicePixelRatio || 1);
+      W = canvas.clientWidth;
+      H = canvas.clientHeight;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    window.addEventListener("resize", resize, { passive: true });
+    resize();
+
+    // Soft bloom trick: draw with lighter composite
+    const particles = [];
+    const PCOUNT = 90;
+
+    function rand(a,b){ return a + Math.random()*(b-a); }
+
+    function initParticles() {
+      particles.length = 0;
+      for (let i=0;i<PCOUNT;i++){
+        particles.push({
+          x: rand(0, W),
+          y: rand(0, H),
+          r: rand(1.2, 3.6),
+          vx: rand(-0.14, 0.14),
+          vy: rand(-0.10, 0.10),
+          hue: rand(190, 265), // cyan→violet
+          a: rand(0.10, 0.28)
+        });
+      }
+    }
+    initParticles();
+
+    let t = 0;
+    function drawHelixRibbon(cx, cy, amp, pitch, phase, colorStops, alpha, thickness) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = thickness;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      const grad = ctx.createLinearGradient(cx - amp, cy - pitch*2, cx + amp, cy + pitch*2);
+      colorStops.forEach(([p,c]) => grad.addColorStop(p, c));
+      ctx.strokeStyle = grad;
+
+      ctx.beginPath();
+      const steps = 220;
+      for (let i=0;i<=steps;i++){
+        const u = i/steps;
+        const y = cy + (u - 0.5) * (H * 0.95);
+        const x = cx + Math.sin((y / pitch) + phase) * amp;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function render() {
+      t += 0.0085;
+
+      // Clear with slight fade (creates motion trails on white)
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(255,255,255,0.22)";
+      ctx.fillRect(0,0,W,H);
+      ctx.restore();
+
+      // Helix ribbons (two)
+      ctx.save();
+      ctx.globalCompositeOperation = "multiply"; // looks premium on white
+      drawHelixRibbon(
+        W*0.34, H*0.52,
+        Math.min(240, W*0.18),
+        52,
+        t*3.2,
+        [
+          [0,"rgba(29,78,216,.45)"],
+          [0.5,"rgba(6,182,212,.35)"],
+          [1,"rgba(124,58,237,.35)"]
+        ],
+        0.55,
+        3.0
+      );
+      drawHelixRibbon(
+        W*0.72, H*0.54,
+        Math.min(210, W*0.16),
+        56,
+        -t*2.9,
+        [
+          [0,"rgba(124,58,237,.40)"],
+          [0.5,"rgba(6,182,212,.30)"],
+          [1,"rgba(29,78,216,.34)"]
+        ],
+        0.50,
+        2.6
+      );
+      ctx.restore();
+
+      // Particles (glow)
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (const p of particles){
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -40) p.x = W + 40;
+        if (p.x > W + 40) p.x = -40;
+        if (p.y < -40) p.y = H + 40;
+        if (p.y > H + 40) p.y = -40;
+
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*8);
+        g.addColorStop(0, `hsla(${p.hue}, 90%, 55%, ${p.a})`);
+        g.addColorStop(1, `hsla(${p.hue}, 90%, 55%, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r*8, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      requestAnimationFrame(render);
+    }
+    render();
+  </script>
+</body>
+</html>
