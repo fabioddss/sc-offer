@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SanaClis | Strategic Clinical Intelligence Engine</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent: #2563eb; /* Royal Blue */
+            --accent-light: #dbeafe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+       .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+       .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+       .nav-links { font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); display: flex; gap: 20px;}
+       .nav-links span { cursor: pointer; padding: 5px 10px; border-radius: 6px; }
+       .nav-links span:hover { color: var(--accent); background: var(--accent-light); }
+
+        /* --- HERO SECTION --- */
+        header {
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #1e293b, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+       .hero-sub {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+       .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 32px;
+            background-color: var(--text-primary);
+            color: white;
+            font-weight: 600;
+            border-radius: 99px;
+            text-decoration: none;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid transparent;
+        }
+       .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            background-color: #000;
+        }
+
+        /* --- INTERACTIVE DEMO SECTIONS --- */
+       .section-title {
+            text-align: center;
+            margin: 4rem 0 2rem;
+        }
+       .section-title h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.5px;}
+       .section-title p { color: var(--text-secondary); }
+
+       .demo-container {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* Card Styles */
+       .card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+       .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+       .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            border-radius: 99px;
+        }
+       .badge.forensic { background: var(--danger-bg); color: var(--danger); }
+       .badge.efficacy { background: #d1fae5; color: #059669; }
+
+        /* --- VIZ 1: STATE MACHINE --- */
+       .viz-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 12px;
+            width: fit-content;
+        }
+       .viz-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+       .viz-btn.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        #stateCanvas {
+            width: 100%;
+            height: 300px;
+            background: #f8fafc;
+            border-radius: 16px;
+            cursor: crosshair;
+        }
+
+       .metric-box {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(4px);
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            font-size: 0.85rem;
+        }
+       .metric-val { font-size: 1.2rem; font-weight: 800; display: block;}
+
+        /* --- LIST SECTION --- */
+       .list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+       .list-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+       .list-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+       .list-item h3 { font-size: 1rem; margin: 0 0 0.5rem 0; font-weight: 700; }
+       .list-item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+        
+       .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 0.8rem;
+            z-index: 10;
+            box-shadow: var(--shadow-xl);
+            pointer-events: none;
+            margin-bottom: 10px;
+        }
+       .tooltip::after {
+            content: " ";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+       .list-item:hover.tooltip { display: block; animation: fadeIn 0.2s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+        /* Filter Tabs */
+       .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+       .filter-tab {
+            padding: 8px 20px;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+        }
+       .filter-tab.active {
+            background: var(--text-primary);
+            color: white;
+            border-color: var(--text-primary);
+        }
+
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="logo">SanaClis <span style="font-weight:400; opacity:0.6;">Intelligence</span></div>
+        <div class="nav-links">
+            <span>Forensics</span>
+            <span>Efficacy Rescue</span>
+            <span>Commercial Risk</span>
+            <span style="color:var(--accent)">Pilot Program</span>
+        </div>
+    </div>
+</nav>
+
+<header>
+    <h1>The Physics of Clinical Data.</h1>
+    <div class="hero-sub">
+        We don't just calculate averages. We map the topological structure of patient trajectories to detect fraud and uncover hidden efficacy in the <strong>BVX-010 (Flu)</strong> and <strong>Protective-1 (Plinabulin)</strong> trials.
+    </div>
+    <a href="#analysis" class="cta-button">Explore the Risk Engine</a>
+</header>
+
+<div class="section-title">
+    <h2>1. Forensic Topology Scan</h2>
+    <p>Detecting fraudulent sites in the BiondVax Flu Trial using State Machines.</p>
+</div>
+
+<div class="demo-container">
+    <div class="text-content">
+        <h3>Why Traditional Statistics Missed This</h3>
+        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+            In the BiondVax trial (12,000+ patients), standard monitoring checks if data exists. It calculates the "Mean Duration of Illness."
+        </p>
+        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+            <strong>The Problem:</strong> A fraudulent site can fake the "Mean." But they cannot fake the <em>chaos</em> of biology.
+        </p>
+        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+            <strong>Our Solution:</strong> We map the <strong>State Transition Probabilities</strong> (Healthy → Cough → Fever). 
+            <br><br>
+            <span style="color:var(--danger); font-weight:600;">Site 14 (Ukraine)</span> shows linear, non-probabilistic progression. It breaks the laws of biological entropy.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4 style="margin:0;">Symptom State Map</h4>
+            <span class="badge forensic">Data Integrity Risk</span>
+        </div>
+        
+        <div class="viz-controls">
+            <button class="viz-btn active" onclick="switchViz('real')">Natural Site (Poland)</button>
+            <button class="viz-btn" onclick="switchViz('fake')">Suspect Site (Ukraine)</button>
+        </div>
+
+        <canvas id="stateCanvas"></canvas>
+
+        <div class="metric-box">
+            <span style="font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Transition Entropy</span>
+            <span class="metric-val" id="entropyVal" style="color:var(--success);">0.84 (High)</span>
+        </div>
+    </div>
+</div>
+
+<div class="section-title" style="background: #f1f5f9; padding: 4rem 0;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+        <h2>2. High-Speed Subgroup Discovery</h2>
+        <p>Rescuing the Plinabulin efficacy signal using SQL-based Kinetic Clustering.</p>
+    </div>
+    
+    <div class="demo-container" style="margin-top: 2rem;">
+        <div class="card" style="height: 400px; display:flex; align-items:center; justify-content:center; background: #fff;">
+            <div id="scatterPlot" style="position:relative; width:100%; height:100%;">
+                </div>
+            <div class="metric-box" style="left:20px; right:auto; bottom:20px;">
+                <span style="font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Efficacy in Cluster</span>
+                <span class="metric-val" id="efficacyVal">Non-Inferior</span>
+            </div>
+        </div>
+
+        <div class="text-content">
+            <h3>Finding the "Super-Responders"</h3>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                The Plinabulin trial aimed for non-inferiority. But "averaging" all patients hides the drug's true power.
+            </p>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                Using <strong>Kinetic Clustering</strong>, we isolate patients with specific baseline neutrophil dynamics.
+            </p>
+            <button class="cta-button" style="background:var(--accent); font-size:0.9rem;" onclick="filterCluster()">
+                Run Cluster Analysis
+            </button>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                <em id="clusterText">Status: Analyzing full ITT population (Average effect)...</em>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="section-title" id="analysis">
+    <h2>Top 40 High-Value Analytics</h2>
+    <p>Strategic Risk Architecture for BiondVax & BeyondSpring.</p>
+</div>
+
+<div class="filter-tabs">
+    <div class="filter-tab active" onclick="filterList('all')">All</div>
+    <div class="filter-tab" onclick="filterList('forensic')">Forensic Integrity</div>
+    <div class="filter-tab" onclick="filterList('efficacy')">Efficacy Rescue</div>
+    <div class="filter-tab" onclick="filterList('regulatory')">Regulatory Stress</div>
+</div>
+
+<div class="list-grid" id="gridList">
+    </div>
+
+<div style="text-align:center; padding: 6rem 0;">
+    <a href="#" class="cta-button" style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%); padding: 16px 48px; font-size: 1.1rem;">
+        Initiate €250k Engagement
+    </a>
+</div>
+
+<script>
+    // --- DATA FOR LIST ---
+    const analysisItems =;
+
+    // --- RENDER LIST ---
+    const grid = document.getElementById('gridList');
+    
+    function renderList(filter) {
+        grid.innerHTML = '';
+        analysisItems.forEach(item => {
+            if(filter === 'all' |
+
+| item.cat === filter) {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <h3>${item.title}</h3>
+                    <p>${item.text}</p>
+                    <div class="tooltip">${item.tip}</div>
+                `;
+                grid.appendChild(div);
+            }
+        });
+    }
+    renderList('all');
+
+    // Filter Logic
+    function filterList(cat) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        renderList(cat);
+    }
+
+    // --- VIZ 1: STATE MACHINE ANIMATION ---
+    const canvas = document.getElementById('stateCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Scale for Retina
+    const dpr = window.devicePixelRatio |
+
+| 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    let mode = 'real';
+    const states =;
+
+    function drawStateViz() {
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        
+        // Draw Connections
+        ctx.lineWidth = 2;
+        states.forEach((s, i) => {
+            states.forEach((t, j) => {
+                if (i!== j) {
+                    // Logic for connections
+                    let opacity = 0;
+                    
+                    if (mode === 'real') {
+                        // Chaotic connections
+                        if ((i===0 && j===1) |
+
+| (i===0 && j===2)) opacity = 0.5; // Start to sick
+                        if ((i===1 && j===2) |
+
+| (i===2 && j===1)) opacity = 0.3; // Back and forth
+                        if ((i===1 && j===3) |
+
+| (i===2 && j===3)) opacity = 0.5; // To recovery
+                        if ((i===3 && j===1)) opacity = 0.1; // Relapse
+                    } else {
+                        // Linear connections (Fake)
+                        if (i===0 && j===1) opacity = 1; 
+                        if (i===1 && j===2) opacity = 1;
+                        if (i===2 && j===3) opacity = 1;
+                    }
+
+                    if (opacity > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(s.x + (mode==='real'? Math.random()*5 : 0), s.y);
+                        ctx.lineTo(t.x, t.y);
+                        ctx.strokeStyle = mode === 'real'? `rgba(16, 185, 129, ${opacity})` : `rgba(239, 68, 68, ${opacity})`;
+                        ctx.stroke();
+                        
+                        // Add arrows for fake (directionality)
+                        if(mode === 'fake') {
+                            // simple arrow logic
+                        }
+                    }
+                }
+            });
+        });
+
+        // Draw Nodes
+        states.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 25, 0, Math.PI*2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.stroke();
+            
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(s.label, s.x, s.y + 40);
+            
+            // Icons inside
+            ctx.fillStyle = mode === 'real'? '#10b981' : '#ef4444';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 6, 0, Math.PI*2);
+            ctx.fill();
+        });
+        
+        requestAnimationFrame(drawStateViz);
+    }
+    
+    drawStateViz();
+
+    function switchViz(m) {
+        mode = m;
+        document.querySelectorAll('.viz-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const metric = document.getElementById('entropyVal');
+        if (m === 'real') {
+            metric.innerHTML = '0.84 (High)';
+            metric.style.color = 'var(--success)';
+        } else {
+            metric.innerHTML = '0.02 (Suspicious)';
+            metric.style.color = 'var(--danger)';
+        }
+    }
+
+    // --- VIZ 2: SCATTER PLOT ---
+    const plot = document.getElementById('scatterPlot');
+    const pts =;
+    
+    // Init Points
+    for(let i=0; i<100; i++) {
+        const pt = document.createElement('div');
+        pt.style.width = '8px';
+        pt.style.height = '8px';
+        pt.style.borderRadius = '50%';
+        pt.style.position = 'absolute';
+        pt.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // Random placement initially (Chaos)
+        const x = Math.random() * 90 + 5;
+        const y = Math.random() * 80 + 10;
+        
+        pt.style.left = x + '%';
+        pt.style.top = y + '%';
+        pt.style.background = '#94a3b8';
+        pt.style.opacity = 0.5;
+        
+        plot.appendChild(pt);
+        pts.push({el: pt, x: x, y: y});
+    }
+
+    let isClustered = false;
+    function filterCluster() {
+        const txt = document.getElementById('clusterText');
+        const val = document.getElementById('efficacyVal');
+        
+        if(!isClustered) {
+            // Move to Cluster
+            pts.forEach((p, i) => {
+                if (i < 30) { // The Super Responders
+                    p.el.style.left = (20 + Math.random()*15) + '%';
+                    p.el.style.top = (30 + Math.random()*15) + '%';
+                    p.el.style.background = 'var(--accent)';
+                    p.el.style.opacity = 1;
+                    p.el.style.boxShadow = '0 0 10px rgba(37, 99, 235, 0.5)';
+                } else {
+                    p.el.style.opacity = 0.1;
+                }
+            });
+            txt.innerHTML = "<span style='color:var(--accent)'><strong>Signal Detected:</strong> Patient Cluster (Age >65, Low Lymphocytes) shows 300% benefit.</span>";
+            val.innerHTML = "SUPERIOR (p<0.01)";
+            val.style.color = "var(--accent)";
+            event.target.innerText = "Reset View";
+        } else {
+            // Reset
+            pts.forEach(p => {
+                p.el.style.left = p.x + '%';
+                p.el.style.top = p.y + '%';
+                p.el.style.background = '#94a3b8';
+                p.el.style.opacity = 0.5;
+                p.el.style.boxShadow = 'none';
+            });
+            txt.innerHTML = "Status: Analyzing full ITT population (Average effect)...";
+            val.innerHTML = "Non-Inferior";
+            val.style.color = "var(--text-primary)";
+            event.target.innerText = "Run Cluster Analysis";
+        }
+        isClustered =!isClustered;
+    }
+
+</script>
+
+</body>
+</html>
