@@ -1,1399 +1,1493 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SanaClis Strategic Clinical Intelligence — Sample Dashboard (Synthetic Data)</title>
-<style>
-  :root {
-    --bg: #0b1220;
-    --panel: rgba(19, 29, 52, .68);
-    --panel2: rgba(13, 20, 37, .65);
-    --stroke: rgba(255,255,255,.08);
-    --text: #e8eefc;
-    --muted: rgba(232,238,252,.70);
-    --dim: rgba(232,238,252,.45);
-    --blue: #4ea1ff;
-    --cyan: #2ee9c5;
-    --green: #40d67d;
-    --amber: #ffbf44;
-    --red: #ff4d6d;
-    --shadow: 0 18px 60px rgba(0,0,0,.45);
-    --radius: 18px;
-    --radius2: 14px;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>F-Dynamic Systems LLC | SanaClis Clinical Intelligence (Sample Dashboard)</title>
 
-  * { box-sizing: border-box; }
-  body {
-    margin:0;
-    font-family: var(--sans);
-    color: var(--text);
-    background:
-      radial-gradient(1200px 600px at 15% 0%, rgba(78,161,255,.18), transparent 55%),
-      radial-gradient(900px 600px at 80% 10%, rgba(46,233,197,.16), transparent 55%),
-      radial-gradient(800px 500px at 45% 70%, rgba(64,214,125,.10), transparent 60%),
-      linear-gradient(180deg, #050a14 0%, var(--bg) 38%, #060b16 100%);
-    min-height:100vh;
-  }
+  <!-- Google Font (optional, loads if online) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-  a { color: var(--blue); text-decoration: none; }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 22px 18px 60px; }
+  <!-- Advanced JS Viz Library (CDN) -->
+  <!-- Apache ECharts (high-end dashboards: heatmaps, sankey, graph, parallel coordinates, sunburst, etc.) -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
-  .hero {
-    position: relative;
-    border: 1px solid var(--stroke);
-    border-radius: calc(var(--radius) + 6px);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    background:
-      radial-gradient(900px 420px at 20% 0%, rgba(78,161,255,.22), transparent 65%),
-      radial-gradient(700px 420px at 85% 30%, rgba(46,233,197,.18), transparent 65%),
-      linear-gradient(180deg, rgba(19,29,52,.85), rgba(13,20,37,.55));
-  }
-  .heroInner {
-    padding: 34px 28px 26px;
-    display: grid;
-    grid-template-columns: 1.4fr .6fr;
-    gap: 18px;
-    align-items: start;
-  }
-  .brand {
-    display:flex; gap:12px; align-items:center;
-  }
-  .logo {
-    width: 44px; height:44px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(78,161,255,.9), rgba(46,233,197,.9));
-    box-shadow: 0 10px 30px rgba(78,161,255,.22);
-    position: relative;
-  }
-  .logo:after {
-    content:"";
-    position:absolute; inset: 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.35);
-    background: rgba(10, 14, 28, .25);
-  }
-  h1 {
-    margin: 10px 0 8px;
-    font-size: clamp(24px, 3.4vw, 40px);
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-  }
-  .sub {
-    color: var(--muted);
-    font-size: 14px;
-    max-width: 62ch;
-  }
-  .meta {
-    display:flex; flex-wrap:wrap; gap:10px;
-    margin-top: 14px;
-  }
-  .chip {
-    display:inline-flex; align-items:center; gap:8px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.14);
-    color: var(--muted);
-    font-size: 12px;
-  }
-  .chip b { color: var(--text); font-weight: 700; }
-  .rightBox {
-    display:flex; flex-direction:column; gap:10px;
-    justify-self: end;
-    text-align:right;
-  }
-  .pill2 {
-    display:inline-flex; justify-content:flex-end;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: rgba(232,238,252,.78);
-  }
-  .disclaimer {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--dim);
-  }
+  <style>
+    :root{
+      /* Light theme (default) */
+      --bg: #f6f9ff;
+      --bg2:#ffffff;
+      --card: rgba(255,255,255,0.75);
+      --card2: rgba(255,255,255,0.92);
+      --stroke: rgba(10, 30, 70, 0.10);
+      --text: #0a1e46;
+      --muted: rgba(10, 30, 70, 0.62);
+      --muted2: rgba(10, 30, 70, 0.45);
+      --accent: #2d6cff;
+      --accent2:#00c2ff;
+      --good:#10b981;
+      --warn:#f59e0b;
+      --bad:#ef4444;
 
-  /* Layout grid */
-  .grid {
-    margin-top: 18px;
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  @media (min-width: 980px) {
-    .grid {
-      grid-template-columns: 1.0fr 1.0fr;
-      gap: 14px;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.10);
+      --shadow2: 0 10px 25px rgba(15, 23, 42, 0.10);
+      --radius: 18px;
     }
-    .span2 { grid-column: 1 / -1; }
-  }
+    [data-theme="dark"]{
+      --bg: #071226;
+      --bg2:#0b1732;
+      --card: rgba(16, 24, 44, 0.62);
+      --card2: rgba(16, 24, 44, 0.92);
+      --stroke: rgba(255,255,255,0.08);
+      --text: #eaf0ff;
+      --muted: rgba(234,240,255,0.70);
+      --muted2: rgba(234,240,255,0.48);
+      --accent: #5aa2ff;
+      --accent2:#34d399;
 
-  .panel {
-    border: 1px solid var(--stroke);
-    border-radius: var(--radius);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  .panelHeader {
-    padding: 16px 18px 10px;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-    display:flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .panelHeader h2 {
-    margin:0;
-    font-size: 15px;
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    color: rgba(232,238,252,.88);
-  }
-  .panelHeader .hint {
-    color: var(--dim);
-    font-size: 12px;
-  }
-  .panelBody {
-    padding: 14px 18px 18px;
-  }
+      --shadow: 0 18px 50px rgba(0,0,0,0.45);
+      --shadow2: 0 10px 25px rgba(0,0,0,0.35);
+    }
 
-  /* KPI cards */
-  .kpis {
-    display:grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  @media (min-width: 700px) {
-    .kpis { grid-template-columns: repeat(4, 1fr); }
-  }
-  .kpi {
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.14);
-    border-radius: 16px;
-    padding: 12px 12px 10px;
-    position: relative;
-    overflow:hidden;
-  }
-  .kpi:before {
-    content:"";
-    position:absolute; inset:-60px -60px auto auto;
-    width:120px; height:120px;
-    background: radial-gradient(circle at 30% 30%, rgba(78,161,255,.45), transparent 60%);
-    transform: rotate(15deg);
-  }
-  .kpi .label {
-    color: var(--dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-  }
-  .kpi .value {
-    margin-top: 6px;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -.02em;
-  }
-  .kpi .delta {
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .tagGood { color: var(--green); font-weight: 700; }
-  .tagWarn { color: var(--amber); font-weight: 700; }
-  .tagBad { color: var(--red); font-weight: 700; }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 500px at 10% -10%, rgba(45,108,255,0.20), transparent 60%),
+                  radial-gradient(1200px 500px at 90% 0%, rgba(0,194,255,0.14), transparent 55%),
+                  radial-gradient(900px 500px at 80% 110%, rgba(16,185,129,0.10), transparent 55%),
+                  var(--bg);
+      overflow-x:hidden;
+    }
 
-  /* Toggle + toolbar */
-  .toolbar {
-    display:flex;
-    flex-wrap: wrap;
-    align-items:center;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 8px 0 14px;
-  }
-  .seg {
-    display:inline-flex;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.18);
-    border-radius: 999px;
-    overflow:hidden;
-  }
-  .seg button {
-    border:0;
-    background: transparent;
-    color: var(--muted);
-    padding: 10px 12px;
-    font-size: 12px;
-    cursor:pointer;
-  }
-  .seg button.active {
-    background: linear-gradient(135deg, rgba(78,161,255,.65), rgba(46,233,197,.55));
-    color: #07101f;
-    font-weight: 800;
-  }
-  .search {
-    display:flex; align-items:center; gap:10px;
-    flex:1;
-    justify-content:flex-end;
-  }
-  .search input {
-    width: min(520px, 100%);
-    background: rgba(0,0,0,.22);
-    border: 1px solid rgba(255,255,255,.12);
-    color: var(--text);
-    border-radius: 14px;
-    padding: 10px 12px;
-    outline:none;
-    font-size: 12px;
-  }
-  .search input::placeholder { color: rgba(232,238,252,.38); }
+    /* Animated "genes" background */
+    #geneBg{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      opacity: 0.85;
+      pointer-events:none;
+      filter: saturate(1.05);
+    }
+    .grain{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      opacity: 0.14;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
 
-  /* Canvas containers */
-  .canvasWrap {
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.12);
-    padding: 12px;
-  }
-  .row2 {
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  @media(min-width: 900px) {
-    .row2 { grid-template-columns: 1fr 1fr; }
-  }
+    .wrap{ max-width: 1280px; margin:0 auto; padding: 22px 18px 70px; }
 
-  .legend {
-    display:flex; flex-wrap:wrap; gap:10px; margin-top: 10px;
-    color: var(--muted); font-size: 12px;
-  }
-  .dot {
-    width:10px; height:10px; border-radius: 999px; display:inline-block; margin-right:6px;
-  }
+    header{
+      margin: 18px 0 14px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow:hidden;
+      position:relative;
+    }
+    header::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(900px 260px at 25% 0%, rgba(45,108,255,0.25), transparent 70%),
+                  radial-gradient(900px 260px at 80% 10%, rgba(0,194,255,0.18), transparent 72%),
+                  radial-gradient(600px 260px at 60% 100%, rgba(16,185,129,0.12), transparent 70%);
+      pointer-events:none;
+    }
+    .topbar{
+      position:relative;
+      display:flex; gap:14px;
+      align-items:center; justify-content:space-between;
+      padding: 18px 18px 14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 280px;
+    }
+    .logo{
+      width:44px; height:44px;
+      border-radius: 14px;
+      background: conic-gradient(from 220deg, var(--accent), var(--accent2), var(--good), var(--accent));
+      box-shadow: 0 10px 25px rgba(45,108,255,0.20);
+      position:relative;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:9px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.25));
+      mix-blend-mode: overlay;
+    }
+    .brand h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+    .brand .sub{
+      margin-top:4px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
 
-  /* Map */
-  .mapWrap {
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  @media(min-width: 900px) {
-    .mapWrap { grid-template-columns: 1.2fr .8fr; }
-  }
-  .mapNote {
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.45;
-  }
-  .callout {
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.14);
-    padding: 12px;
-  }
-  .callout h3 {
-    margin: 0 0 6px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: rgba(232,238,252,.85);
-  }
-  .callout ul {
-    margin: 8px 0 0 18px;
-    color: var(--muted);
-    font-size: 12px;
-  }
+    .controls{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.55);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      box-shadow: var(--shadow2);
+      display:flex; gap:10px; align-items:center;
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="dark"] .pill{ background: rgba(10,18,38,0.45); }
 
-  /* 40 items grid */
-  .items {
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  @media(min-width: 760px) {
-    .items { grid-template-columns: 1fr 1fr; }
-  }
-  @media(min-width: 1100px) {
-    .items { grid-template-columns: 1fr 1fr 1fr; }
-  }
-  .card {
-    border: 1px solid rgba(255,255,255,.10);
-    border-radius: var(--radius2);
-    background: rgba(0,0,0,.14);
-    padding: 12px 12px 10px;
-    transition: transform .18s ease, border-color .18s ease, background .18s ease;
-  }
-  .card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(78,161,255,.35);
-    background: rgba(0,0,0,.18);
-  }
-  .itemTop {
-    display:flex;
-    gap: 10px;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .idx {
-    display:inline-flex;
-    width: 28px; height: 28px;
-    border-radius: 10px;
-    align-items:center; justify-content:center;
-    background: rgba(78,161,255,.14);
-    border: 1px solid rgba(78,161,255,.22);
-    color: rgba(232,238,252,.92);
-    font-family: var(--mono);
-    font-size: 12px;
-    margin-right: 8px;
-  }
-  .itemTitle {
-    font-weight: 800;
-    letter-spacing: -.01em;
-    line-height: 1.25;
-    font-size: 13px;
-  }
-  .itemStars {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--amber);
-    opacity: .95;
-    white-space: nowrap;
-  }
-  .itemTech {
-    margin-top: 8px;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.35;
-  }
-  .pill {
-    display:inline-block;
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 2px 7px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.14);
-    margin-right: 8px;
-    color: rgba(232,238,252,.80);
-    background: rgba(0,0,0,.18);
-  }
+    select, button, input{
+      font-family: inherit;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.65);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline:none;
+      box-shadow: none;
+    }
+    [data-theme="dark"] select, [data-theme="dark"] button, [data-theme="dark"] input{
+      background: rgba(10,18,38,0.55);
+    }
+    button{
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+    }
+    button:hover{ transform: translateY(-1px); box-shadow: 0 14px 30px rgba(45,108,255,0.14); }
+    .btnPrimary{
+      border:none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#fff;
+      font-weight: 700;
+    }
+    .btnGhost{
+      background: rgba(255,255,255,0.35);
+      font-weight: 600;
+    }
 
-  .tier-1 { border-left: 3px solid rgba(255,77,109,.9); }
-  .tier-2 { border-left: 3px solid rgba(255,191,68,.9); }
-  .tier-3 { border-left: 3px solid rgba(64,214,125,.85); }
+    .headerBody{
+      position:relative;
+      padding: 0 18px 18px;
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .hero{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.55);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(12px);
+      min-height: 120px;
+    }
+    [data-theme="dark"] .hero{ background: rgba(10,18,38,0.45); }
+    .hero h2{ margin:0 0 10px; font-size: 22px; letter-spacing:-0.03em; }
+    .hero p{ margin:0; color:var(--muted); font-size: 13.5px; }
+    .hero .meta{
+      margin-top: 12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      color: var(--muted2);
+      font-size: 12px;
+    }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.45);
+    }
+    [data-theme="dark"] .tag{ background: rgba(10,18,38,0.35); }
 
-  /* Footer CTA */
-  .cta {
-    margin-top: 14px;
-    padding: 18px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255,255,255,.12);
-    background:
-      radial-gradient(700px 240px at 30% 10%, rgba(78,161,255,.18), transparent 60%),
-      radial-gradient(700px 240px at 80% 40%, rgba(46,233,197,.16), transparent 60%),
-      rgba(0,0,0,.18);
-    display:flex;
-    flex-wrap: wrap;
-    align-items:center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .cta h3 {
-    margin:0;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: rgba(232,238,252,.86);
-  }
-  .cta p {
-    margin: 8px 0 0;
-    color: var(--muted);
-    font-size: 12px;
-    max-width: 78ch;
-  }
-  .btn {
-    display:inline-flex;
-    align-items:center; justify-content:center;
-    gap: 10px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: linear-gradient(135deg, rgba(78,161,255,.85), rgba(46,233,197,.75));
-    color: #07101f;
-    font-weight: 900;
-    letter-spacing: .02em;
-    cursor:pointer;
-    user-select:none;
-    box-shadow: 0 18px 45px rgba(78,161,255,.18);
-  }
-  .btn small {
-    font-weight: 800;
-    font-family: var(--mono);
-    opacity: .8;
-  }
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 12px;
+    }
+    .kpi{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.62);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+    }
+    [data-theme="dark"] .kpi{ background: rgba(10,18,38,0.55); }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(420px 140px at 20% 0%, rgba(45,108,255,0.20), transparent 60%),
+                  radial-gradient(420px 140px at 95% 15%, rgba(0,194,255,0.14), transparent 60%);
+      pointer-events:none;
+    }
+    .kpi .label{ position:relative; color:var(--muted); font-size: 12px; }
+    .kpi .value{ position:relative; font-size: 22px; font-weight: 800; letter-spacing:-0.02em; margin-top:6px; }
+    .kpi .delta{ position:relative; margin-top: 8px; font-size: 12px; color: var(--muted2); display:flex; gap:8px; align-items:center; }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--good);
+      box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+    }
+    .dot.warn{ background: var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,0.14); }
+    .dot.bad{ background: var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,0.14); }
 
-  /* Tiny toast */
-  .toast {
-    position: fixed;
-    bottom: 16px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,.58);
-    border: 1px solid rgba(255,255,255,.14);
-    border-radius: 999px;
-    padding: 10px 14px;
-    color: rgba(232,238,252,.84);
-    font-size: 12px;
-    backdrop-filter: blur(10px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .22s ease, transform .22s ease;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-4px);
-  }
-</style>
+    .grid{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .cardHeader{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap: 10px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--stroke);
+    }
+    .cardHeader h3{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+    .cardHeader .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .cardBody{ padding: 12px 14px 14px; }
+    .viz{
+      width:100%;
+      height: 340px;
+      border-radius: 14px;
+      overflow:hidden;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.5);
+    }
+    [data-theme="dark"] .viz{ background: rgba(10,18,38,0.35); }
+
+    .stack{
+      display:grid;
+      gap: 16px;
+    }
+    .miniViz{ height: 220px; }
+    .smallViz{ height: 260px; }
+
+    .sectionTitle{
+      margin: 26px 0 10px;
+      display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap:wrap;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .sectionTitle p{ margin:0; color:var(--muted); font-size: 12.5px; }
+
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin: 12px 0 12px;
+    }
+    .tab{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.55);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+      font-weight: 700;
+      font-size: 12.5px;
+    }
+    [data-theme="dark"] .tab{ background: rgba(10,18,38,0.45); }
+    .tab.active{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#fff;
+      border: none;
+      box-shadow: 0 14px 30px rgba(45,108,255,0.18);
+    }
+    .tab:hover{ transform: translateY(-1px); }
+
+    .listWrap{
+      display:grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 16px;
+    }
+    .listPane{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      padding: 12px;
+      backdrop-filter: blur(12px);
+    }
+    [data-theme="dark"] .listPane{ background: rgba(10,18,38,0.45); }
+    .searchRow{
+      display:flex; gap:10px;
+      align-items:center;
+      margin-bottom: 10px;
+    }
+    .searchRow input{ width:100%; }
+    .chipRow{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{
+      padding:6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.45);
+      cursor:pointer;
+      font-size: 12px;
+      color: var(--muted);
+      user-select:none;
+    }
+    [data-theme="dark"] .chip{ background: rgba(10,18,38,0.35); }
+    .chip.active{
+      background: rgba(45,108,255,0.14);
+      color: var(--text);
+      border-color: rgba(45,108,255,0.25);
+    }
+
+    .items{
+      margin-top: 10px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .item{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.62);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display:grid;
+      gap: 6px;
+      transition: transform .12s ease, box-shadow .18s ease;
+      cursor:pointer;
+    }
+    [data-theme="dark"] .item{ background: rgba(10,18,38,0.55); }
+    .item:hover{ transform: translateY(-1px); box-shadow: 0 18px 40px rgba(15,23,42,0.12); }
+    .itemTop{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .itemTitle{ font-weight: 800; font-size: 13px; letter-spacing:-0.01em; }
+    .stars{ font-size: 12px; color: var(--warn); letter-spacing: 2px; white-space:nowrap; }
+    .itemDesc{ color: var(--muted); font-size: 12.5px; }
+    .metaRow{
+      display:flex; gap:8px; flex-wrap:wrap;
+      color: var(--muted2);
+      font-size: 11.5px;
+    }
+    .badge{
+      padding: 5px 8px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.45);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    [data-theme="dark"] .badge{ background: rgba(10,18,38,0.35); }
+
+    .detailPane{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .detailHead{
+      padding: 14px 14px 10px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
+    }
+    .detailHead h3{ margin:0; font-size: 14px; }
+    .detailHead .mini{ color: var(--muted); font-size: 12px; }
+    .detailBody{ padding: 12px 14px 14px; }
+    .callout{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.55);
+      border-radius: 16px;
+      padding: 12px;
+      color: var(--muted);
+      box-shadow: var(--shadow2);
+    }
+    [data-theme="dark"] .callout{ background: rgba(10,18,38,0.45); }
+    .callout strong{ color: var(--text); }
+    .detailViz{ height: 330px; margin-top: 12px; }
+
+    footer{
+      margin-top: 22px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    footer .left{ color: var(--muted); font-size: 12.5px; }
+    footer .right{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    .warnText{ color: var(--warn); font-weight: 700; }
+    .goodText{ color: var(--good); font-weight: 700; }
+    .badText{ color: var(--bad); font-weight: 700; }
+
+    @media (max-width: 980px){
+      .headerBody{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .listWrap{ grid-template-columns: 1fr; }
+      .items{ max-height: 380px; }
+      .brand{ min-width: auto; }
+    }
+  </style>
 </head>
-<body>
+
+<body data-theme="light">
+<canvas id="geneBg"></canvas>
+<div class="grain"></div>
+
 <div class="wrap">
-
-  <section class="hero">
-    <div class="heroInner">
-      <div>
-        <div class="brand">
-          <div class="logo"></div>
-          <div>
-            <div style="font-family:var(--mono); color:rgba(232,238,252,.75); font-size:12px;">FDS • Strategic Risk Architecture</div>
-            <div style="font-size:12px; color:var(--dim);">Clinical Intelligence • Dynamic Systems • AI/ML Forensics</div>
-          </div>
-        </div>
-        <h1>SanaClis Strategic Clinical Intelligence — Sample Dashboard (Synthetic Data)</h1>
-        <div class="sub">Dynamic System Stability • Forensic Integrity • AI-Assisted Risk Architecture</div>
-
-        <div class="meta">
-          <div class="chip">Mode: <b>Demo</b> (synthetic)</div>
-          <div class="chip">Scope: <b>Plinabulin DSN</b> + <b>Universal Flu Vaccine</b></div>
-          <div class="chip">Output: <b>Board-ready</b> + <b>Regulatory-ready</b></div>
-          <div class="chip">Engagement: <b>€250k</b> per study analysis</div>
-        </div>
-
-        <div class="disclaimer">
-          Disclaimer: This dashboard is a <b>sample</b> designed to demonstrate what an end-to-end “performed study analysis” can look like.
-          All charts and site signals below are generated from <b>synthetic data</b> and <b>do not represent</b> any real patient/site outcomes.
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>F-Dynamic Systems LLC</h1>
+          <div class="sub">Strategic Clinical Intelligence • Forensic Data Integrity • High-Performance Analytics</div>
         </div>
       </div>
 
-      <div class="rightBox">
-        <div class="pill2">Build: 2026-02-14</div>
-        <div class="pill2">Data Model: SDTM/ADaM-ready • SQL Server-ready</div>
-        <div class="pill2">Engine: C++ deterministic core • AI/ML layer optional</div>
-        <div class="pill2">Focus: Stability • Integrity • Replication</div>
+      <div class="controls">
+        <div class="pill">
+          <span style="color:var(--muted);font-weight:700;font-size:12px;">Target Study</span>
+          <select id="studySelect" aria-label="Target study">
+            <option value="protective">Protective-1 (Neutropenia: Docetaxel + Plinabulin vs Pegfilgrastim)</option>
+            <option value="flu">BVX-010 (M-001 Universal Flu Vaccine: Phase 3)</option>
+          </select>
+        </div>
+
+        <button class="btnGhost" id="themeBtn" title="Toggle theme">Light / Dark</button>
+        <button class="btnPrimary" id="exportBtn" title="Export a one-page snapshot">Export Snapshot</button>
       </div>
     </div>
-  </section>
+
+    <div class="headerBody">
+      <div class="hero">
+        <h2 id="heroTitle">SanaClis Strategic Clinical Intelligence — Sample Dashboard</h2>
+        <p id="heroDesc">
+          This is a synthetic demonstration of the analytics and visual products F-Dynamic Systems LLC can deliver at a €250k engagement level:
+          forensic site integrity, high-dimensional modeling, and regulator-ready stress testing—implemented as a fast, production-grade dashboard.
+        </p>
+        <div class="meta" id="heroMeta">
+          <span class="tag">State Machines</span>
+          <span class="tag">Causal + Sensitivity</span>
+          <span class="tag">EHR / Lab Topology</span>
+          <span class="tag">Anomaly Fingerprints</span>
+          <span class="tag">SQL-Scale Computation</span>
+          <span class="tag">ML Assisted Review</span>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="label">Forensic Integrity Risk</div>
+          <div class="value" id="kpiRisk">High</div>
+          <div class="delta"><span class="dot bad"></span><span id="kpiRiskText">3 sites show non-biological signatures (synthetic demo)</span></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Regulatory Robustness</div>
+          <div class="value" id="kpiReg">Stress-Ready</div>
+          <div class="delta"><span class="dot"></span><span id="kpiRegText">48 scenario stress tests pass (synthetic demo)</span></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Hidden Signal Potential</div>
+          <div class="value" id="kpiSignal">Strong</div>
+          <div class="delta"><span class="dot"></span><span id="kpiSignalText">2 latent response regimes detected (synthetic demo)</span></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Commercial Storyline</div>
+          <div class="value" id="kpiStory">Actionable</div>
+          <div class="delta"><span class="dot warn"></span><span id="kpiStoryText">Health-econ framing available (synthetic demo)</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
 
   <div class="grid">
-    <section class="panel span2">
-      <div class="panelHeader">
-        <h2>Executive Snapshot</h2>
-        <div class="hint">KPI tiles update with the study toggle below</div>
-      </div>
-      <div class="panelBody">
-        <div class="toolbar">
-          <div class="seg" id="studySeg">
-            <button class="active" data-study="neutro">Protective-1 (Neutropenia)</button>
-            <button data-study="flu">BVX-010 (Flu Vaccine)</button>
-          </div>
-          <div class="search">
-            <input id="globalSearch" placeholder="Search the 40 analysis products (e.g., 'regime', 'copula', 'integrity', 'hazard')..." />
-          </div>
+    <div class="card">
+      <div class="cardHeader">
+        <div>
+          <h3 id="mainVizTitle">Regime-Switch Trajectories (Patient-State Dynamics)</h3>
+          <div class="hint" id="mainVizHint">A dynamic-system view of recovery / risk over time (synthetic).</div>
         </div>
+        <div class="hint"><span class="goodText">Interactive</span> • zoom • hover • regime markers</div>
+      </div>
+      <div class="cardBody">
+        <div id="vizMain" class="viz"></div>
+      </div>
+    </div>
 
-        <div class="kpis" id="kpis"></div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panelHeader">
-        <h2>Dynamic System View</h2>
-        <div class="hint">Trajectories + regime markers (synthetic)</div>
-      </div>
-      <div class="panelBody">
-        <div class="canvasWrap">
-          <canvas id="trajChart" width="520" height="260" style="width:100%; height:auto;"></canvas>
-          <div class="legend">
-            <span><i class="dot" style="background:rgba(78,161,255,.95)"></i>Arm A</span>
-            <span><i class="dot" style="background:rgba(46,233,197,.95)"></i>Arm B</span>
-            <span><i class="dot" style="background:rgba(255,191,68,.95)"></i>Regime switch</span>
-            <span><i class="dot" style="background:rgba(255,77,109,.95)"></i>Threshold boundary</span>
-          </div>
-        </div>
-        <div class="mapNote" style="margin-top:10px;">
-          This view demonstrates how we treat endpoint behavior as a <b>time-evolving system</b>: suppression → nadir → recovery.
-          We focus on structural differences (slopes, timing, regime shifts), not only endpoint aggregates.
-        </div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panelHeader">
-        <h2>Forensic Integrity Layer</h2>
-        <div class="hint">Site fingerprint heatmap + anomaly flags (synthetic)</div>
-      </div>
-      <div class="panelBody">
-        <div class="canvasWrap">
-          <canvas id="heatChart" width="520" height="260" style="width:100%; height:auto;"></canvas>
-        </div>
-        <div class="mapNote" style="margin-top:10px;">
-          Integrity fingerprint combines: entropy of trajectories, timestamp granularity, variance compression, and multivariate dependence stability.
-          Highlighted cells indicate <b>“too perfect”</b> patterns inconsistent with biology/logistics.
-        </div>
-      </div>
-    </section>
-
-    <section class="panel span2">
-      <div class="panelHeader">
-        <h2>Geo / Site Signal Map</h2>
-        <div class="hint">Heat points and site risk bands (synthetic)</div>
-      </div>
-      <div class="panelBody">
-        <div class="mapWrap">
-          <div class="canvasWrap">
-            <svg id="siteMap" viewBox="0 0 820 360" width="100%" height="auto" style="display:block;">
-              <defs>
-                <radialGradient id="glowBlue" cx="50%" cy="50%" r="60%">
-                  <stop offset="0%" stop-color="rgba(78,161,255,.65)"/>
-                  <stop offset="100%" stop-color="rgba(78,161,255,0)"/>
-                </radialGradient>
-                <radialGradient id="glowRed" cx="50%" cy="50%" r="60%">
-                  <stop offset="0%" stop-color="rgba(255,77,109,.75)"/>
-                  <stop offset="100%" stop-color="rgba(255,77,109,0)"/>
-                </radialGradient>
-                <linearGradient id="mapBg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="rgba(13,20,37,.85)"/>
-                  <stop offset="100%" stop-color="rgba(8,12,24,.85)"/>
-                </linearGradient>
-              </defs>
-              <rect x="0" y="0" width="820" height="360" rx="18" fill="url(#mapBg)" stroke="rgba(255,255,255,.10)"/>
-              <!-- pseudo-world contours -->
-              <path d="M115,205 C110,160 170,140 210,150 C270,165 260,235 215,245 C170,255 130,250 115,205 Z" fill="rgba(78,161,255,.08)" stroke="rgba(78,161,255,.14)"/>
-              <path d="M345,210 C330,165 380,135 430,140 C490,148 520,190 498,232 C478,270 388,270 345,210 Z" fill="rgba(46,233,197,.08)" stroke="rgba(46,233,197,.14)"/>
-              <path d="M585,200 C575,155 625,130 690,150 C745,167 745,230 700,248 C650,270 595,250 585,200 Z" fill="rgba(255,191,68,.07)" stroke="rgba(255,191,68,.12)"/>
-              <g id="mapPoints"></g>
-              <g>
-                <text x="20" y="28" fill="rgba(232,238,252,.70)" font-size="12" font-family="var(--mono)">Synthetic Site Map • Hover points for details</text>
-              </g>
-            </svg>
-          </div>
-
-          <div class="callout">
-            <h3>How clients use this</h3>
-            <div class="mapNote">
-              SanaClis can present this as a <b>risk overlay</b> for:
-              <ul>
-                <li>Regulatory submission readiness (data integrity)</li>
-                <li>Licensing/M&A diligence (replication & stability risk)</li>
-                <li>Trial redesign decisions (endpoint fragility & regimes)</li>
-              </ul>
-              The map becomes a decision artifact: <b>where risk concentrates</b>, which sites to audit, and how much confidence to assign to observed effects.
-            </div>
-            <div class="mapNote" style="margin-top:10px;">
-              <b>Key differentiation:</b> we treat site signals like cybersecurity telemetry—high-dimensional fingerprints, not single metrics.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel span2">
-      <div class="panelHeader">
-        <h2>Top 40 High-Value Analytic Products</h2>
-        <div class="hint">Filterable list • relevance-rated • technique included</div>
-      </div>
-      <div class="panelBody">
-        <div class="items" id="items">
-          <div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">01</span> Structural Stability of Therapeutic Signal</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Nonlinear dynamic system modeling + stability region mapping</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">02</span> Replication Probability Modeling</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Bayesian posterior predictive modeling + shrinkage</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">03</span> Threshold Fragility Index (DSN/ANC)</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Boundary sensitivity + threshold elasticity</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">04</span> Regime Shift Detection in Recovery</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> HMM / change-point detection</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">05</span> Hazard Shape Stability (Season)</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Time-varying hazard + spline decomposition</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">06</span> Signal vs Noise Decomposition</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Variance decomposition + residual structure</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">07</span> Latent State Discovery</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> State-space models + Neural ODE surrogate</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">08</span> Site-Level Behavioral Anomaly Detection</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Entropy scoring + temporal anomaly models</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">09</span> Counterfactual Treatment Effect Modeling</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Causal forests + doubly-robust estimation</div>
-</div>
-<div class="card item tier-1">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">10</span> Structural Collapse Risk Under Drift</div>
-    <div class="itemStars" title="Relevance">★★★★★</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Perturbation analysis + tipping-point mapping</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">11</span> Mechanistic Differentiation Map</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Compartment model parameter comparison</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">12</span> Nonlinear Dose–Response Stability</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> SINDy sparse nonlinear identification</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">13</span> Dynamic Variance Compression Scan</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Spectral density + entropy drift</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">14</span> Infection Cluster Topology Modeling</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Spatio-temporal graph clustering</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">15</span> Responder Phenotype Discovery</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Mixture models + unsupervised clustering</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">16</span> Early-Warning Effect Decay</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Rolling hazard drift + sequential tests</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">17</span> Endpoint Elasticity Analysis</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Perturbed endpoint definitions + sensitivity curves</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">18</span> PK/PD Stability Assessment</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> NLME + exposure-response residual stability</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">19</span> Missingness Mechanism Stress Test</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> MNAR sensitivity + causal missingness modeling</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">20</span> Dynamic Hazard Regime Classification</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Regime-switching hazards</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">21</span> Mature vs Immature Neutrophil Dynamics</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Two-compartment maturation-delay modeling</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">22</span> Nonlinearity Discovery (Function Form)</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Gaussian process regression</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">23</span> Lab Calibration Drift Robustness</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Shift detection + invariance tests</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">24</span> Multi-Arm Dynamic Curve Similarity</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Functional data analysis + curve distance metrics</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">25</span> Hierarchical Site Variability Modeling</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Bayesian hierarchical random effects</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">26</span> Time-to-Nadir Distribution Stability</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Distributional modeling + quantile shifts</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">27</span> Overfitting / P-hacking Risk Signals</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Cross-validated instability metrics</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">28</span> Multivariate Endpoint Dependency Stability</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Copula dependence + tail risk checks</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">29</span> Epidemic Wave Decomposition</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Wavelet / peak decomposition of incidence</div>
-</div>
-<div class="card item tier-2">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">30</span> Interaction Effects Discovery</div>
-    <div class="itemStars" title="Relevance">★★★★☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> SHAP interaction + partial dependence</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">31</span> Dynamic Smoothness Improbability Scan</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Curvature constraints + smoothness likelihood</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">32</span> Latent Covariate Influence Mining</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Representation learning + feature discovery</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">33</span> Effect Stability Across Demographics</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Hierarchical stratification + partial pooling</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">34</span> Regulatory Re-analysis Robustness Pack</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Alternative estimand + model comparison</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">35</span> Synthetic Control vs Historical Context</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Synthetic control + external comparator QC</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">36</span> Peak Hazard Compression Analysis</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Functional hazard regression</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">37</span> Outlier Influence & Robust Estimation</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Robust regression + influence functions</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">38</span> Shape-Constrained Recovery Symmetry Test</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Monotone/convex regression + shape tests</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">39</span> Longitudinal Entropy Drift Monitoring</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Information-theoretic drift metrics</div>
-</div>
-<div class="card item tier-3">
-  <div class="itemTop">
-    <div class="itemTitle"><span class="idx">40</span> Data Integrity Fingerprints (Timing/Batch)</div>
-    <div class="itemStars" title="Relevance">★★★☆☆</div>
-  </div>
-  <div class="itemTech"><span class="pill">TECH</span> Timestamp granularity + batch-entry detection</div>
-</div>
-        </div>
-
-        <div class="cta">
+    <div class="stack">
+      <div class="card">
+        <div class="cardHeader">
           <div>
-            <h3>Sample deliverable framing</h3>
-            <p>
-              We don’t “run stats.” We build a <b>dynamic risk architecture</b> over the clinical system:
-              stability of signal, integrity fingerprints, and replication likelihood—formatted as a board-ready package
-              with a technical appendix for regulators.
-            </p>
+            <h3 id="side1Title">Site Integrity Heatmap (Fingerprint)</h3>
+            <div class="hint" id="side1Hint">Detects impossible patterns & batch-entry signatures.</div>
           </div>
-          <div class="btn" id="exportBtn" title="Export a one-page executive brief (demo)">
-            Export Executive Brief <small>PDF-ready</small>
-          </div>
+          <div class="hint"><span class="badText">Anomaly glow</span> • entropy • digit/interval tests</div>
+        </div>
+        <div class="cardBody">
+          <div id="vizHeat" class="viz miniViz"></div>
         </div>
       </div>
-    </section>
-  </div>
-</div>
 
-<div class="toast" id="toast">Copied executive brief to clipboard (demo)</div>
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <h3 id="side2Title">Multivariate Structure (Copula / Dependence)</h3>
+            <div class="hint" id="side2Hint">If correlations are wrong, data is untrustworthy.</div>
+          </div>
+          <div class="hint">parallel coords • clustering • drift</div>
+        </div>
+        <div class="cardBody">
+          <div id="vizParallel" class="viz miniViz"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:16px;">
+    <div class="card">
+      <div class="cardHeader">
+        <div>
+          <h3 id="mapTitle">Geospatial / Site-Level Heat Points (Synthetic)</h3>
+          <div class="hint" id="mapHint">High-impact: quickly localize risk, bias, and operational failures.</div>
+        </div>
+        <div class="hint">hover • risk labels • density</div>
+      </div>
+      <div class="cardBody">
+        <div id="vizMap" class="viz smallViz"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHeader">
+        <div>
+          <h3 id="sankeyTitle">Causal Pathways (Protocol → Execution → Outcome)</h3>
+          <div class="hint" id="sankeyHint">Shows where value is created or lost in real trial operations.</div>
+        </div>
+        <div class="hint">Sankey • failure modes</div>
+      </div>
+      <div class="cardBody">
+        <div id="vizSankey" class="viz smallViz"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sectionTitle">
+    <div>
+      <h2>Top 40 High-Value Analytic Products (SanaClis-facing)</h2>
+      <p>Filter by tier. Click an item to show an example visualization/technique and “how SanaClis uses it with clients”.</p>
+    </div>
+    <div class="pill">
+      <span style="color:var(--muted);font-weight:700;font-size:12px;">Engagement Level</span>
+      <span style="font-weight:800;">€250k / analysis</span>
+    </div>
+  </div>
+
+  <div class="tabs" id="tierTabs"></div>
+
+  <div class="listWrap">
+    <div class="listPane">
+      <div class="searchRow">
+        <input id="search" placeholder="Search (e.g., copula, site fraud, missingness, causal, health econ)" />
+      </div>
+      <div class="chipRow" id="chips"></div>
+      <div class="items" id="items"></div>
+    </div>
+
+    <div class="detailPane">
+      <div class="detailHead">
+        <div>
+          <h3 id="detailTitle">Select an analytic product</h3>
+          <div class="mini" id="detailMini">Technique • relevance • client-facing benefit</div>
+        </div>
+        <div class="mini" id="detailStars">★★★★★</div>
+      </div>
+      <div class="detailBody">
+        <div class="callout" id="detailText">
+          <strong>How SanaClis benefits:</strong> You get a regulator-ready narrative, plus an operational “risk map” for CRO/site management, plus client-grade commercial framing.
+          Click any item on the left to populate this panel and render an example visualization.
+        </div>
+        <div id="vizDetail" class="viz detailViz"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="left">
+      <strong>Note:</strong> All figures are <em>synthetic demo data</em>. In a real engagement, F-Dynamic Systems LLC ingests CDISC/SDTM/ADaM,
+      EDC exports, labs, and operational logs into a hardened SQL Server pipeline for high-speed forensic computation.
+    </div>
+    <div class="right">
+      <span class="tag">For SanaClis client delivery</span>
+      <span class="tag">Regulatory stress testing</span>
+      <span class="tag">Operational risk controls</span>
+      <button class="btnPrimary" onclick="alert('Sample only. In a real engagement, we generate a regulator-ready PDF + client deck + live dashboard.')">Request Pilot</button>
+    </div>
+  </footer>
+</div>
 
 <script>
-/* -----------------------------
-   Synthetic data generator
------------------------------- */
-function seededRand(seed) {
-  // simple LCG
-  let s = seed >>> 0;
-  return function() {
-    s = (1664525 * s + 1013904223) >>> 0;
-    return (s / 4294967296);
-  };
-}
+/* =========================
+   1) Animated "genes" canvas
+   ========================= */
+(function geneBackground(){
+  const canvas = document.getElementById('geneBg');
+  const ctx = canvas.getContext('2d');
+  let w,h, dpr;
 
-const demo = {
-  neutro: {
-    name: "Protective-1 (Neutropenia)",
-    kpis: [
-      {label:"Structural Stability Score", value:"0.82", delta:"↑ strong mechanistic consistency", cls:"tagGood"},
-      {label:"Threshold Fragility Index", value:"0.27", delta:"↓ low boundary sensitivity", cls:"tagGood"},
-      {label:"Replication Probability", value:"0.64", delta:"moderate-high under neutral prior", cls:"tagWarn"},
-      {label:"Integrity Risk (sites)", value:"2 / 18", delta:"2 sites flagged for audit", cls:"tagWarn"},
-    ],
-    chart: {
-      xLabel: "Cycle 1 day",
-      yLabel: "ANC (×10⁹/L)",
-      threshold: 0.5,
-      regimeX: 7.5,
-      // two mean curves
-      seriesA: [2.8, 2.2, 1.2, 0.62, 0.44, 0.39, 0.47, 0.78, 1.45, 2.10],
-      seriesB: [2.9, 2.3, 1.1, 0.74, 0.61, 0.56, 0.62, 0.98, 1.62, 2.25],
-      x:        [1,2,6,7,8,9,10,11,15,21],
-    },
-    heat: {
-      rows: ["Site 01","Site 03","Site 05","Site 07","Site 09","Site 11","Site 14","Site 18"],
-      cols: ["Entropy","Variance","Timing","Copula","Smooth","Dropout"],
-      // 0..1 risk; higher=more suspicious
-      z: [
-        [0.18,0.22,0.15,0.25,0.12,0.20],
-        [0.25,0.28,0.22,0.30,0.20,0.18],
-        [0.21,0.16,0.17,0.19,0.14,0.23],
-        [0.65,0.70,0.62,0.74,0.68,0.52], // flagged
-        [0.24,0.19,0.25,0.21,0.18,0.27],
-        [0.20,0.22,0.18,0.24,0.21,0.19],
-        [0.58,0.61,0.72,0.69,0.55,0.41], // flagged
-        [0.26,0.30,0.28,0.27,0.23,0.29],
-      ],
-    },
-    map: {
-      points: [
-        {id:"Site 01", x:160, y:195, risk:0.18, region:"US/EU"},
-        {id:"Site 03", x:190, y:175, risk:0.28, region:"US/EU"},
-        {id:"Site 05", x:235, y:210, risk:0.16, region:"US/EU"},
-        {id:"Site 07", x:420, y:205, risk:0.70, region:"EU"},
-        {id:"Site 09", x:455, y:185, risk:0.21, region:"EU"},
-        {id:"Site 11", x:500, y:222, risk:0.22, region:"EU"},
-        {id:"Site 14", x:645, y:210, risk:0.61, region:"RU/UA"},
-        {id:"Site 18", x:705, y:195, risk:0.30, region:"RU/UA"},
-      ]
+  const particles = [];
+  const strands = [];
+  const Np = 120;     // particles
+  const Ns = 3;       // DNA strands
+  let t = 0;
+
+  function resize(){
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    w = canvas.width  = Math.floor(window.innerWidth * dpr);
+    h = canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width  = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.setTransform(1,0,0,1,0,0);
+  }
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+
+  function init(){
+    particles.length = 0;
+    for(let i=0;i<Np;i++){
+      particles.push({
+        x: rand(0,w), y: rand(0,h),
+        vx: rand(-0.08,0.08), vy: rand(0.02,0.12),
+        r: rand(1.2,2.4),
+        a: rand(0.10,0.22)
+      });
+    }
+
+    strands.length = 0;
+    for(let s=0;s<Ns;s++){
+      strands.push({
+        cx: rand(0.10,0.90)*w,
+        cy: rand(0.10,0.90)*h,
+        amp: rand(20,42)*dpr,
+        freq: rand(0.008,0.015),
+        phase: rand(0,Math.PI*2),
+        drift: rand(0.05,0.16),
+        hue: rand(200,220)
+      });
+    }
+  }
+
+  function draw(){
+    t += 1;
+    ctx.clearRect(0,0,w,h);
+
+    // soft gradient wash
+    const g = ctx.createLinearGradient(0,0,w,h);
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    if(!isDark){
+      g.addColorStop(0,'rgba(45,108,255,0.10)');
+      g.addColorStop(0.5,'rgba(0,194,255,0.06)');
+      g.addColorStop(1,'rgba(16,185,129,0.06)');
+    }else{
+      g.addColorStop(0,'rgba(90,162,255,0.10)');
+      g.addColorStop(0.5,'rgba(52,211,153,0.06)');
+      g.addColorStop(1,'rgba(90,162,255,0.03)');
+    }
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    // DNA strands
+    for(const s of strands){
+      s.cy += s.drift * dpr;
+      if(s.cy > h + 80*dpr) s.cy = -80*dpr;
+
+      const y0 = s.cy - 180*dpr;
+      const y1 = s.cy + 180*dpr;
+
+      ctx.lineWidth = 1.2*dpr;
+      ctx.strokeStyle = isDark ? 'rgba(234,240,255,0.14)' : 'rgba(10,30,70,0.12)';
+      ctx.beginPath();
+      for(let y=y0; y<=y1; y+= 6*dpr){
+        const x = s.cx + Math.sin((y + t*dpr)*s.freq + s.phase) * s.amp;
+        if(y===y0) ctx.moveTo(x,y);
+        else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = isDark ? 'rgba(90,162,255,0.16)' : 'rgba(45,108,255,0.16)';
+      ctx.beginPath();
+      for(let y=y0; y<=y1; y+= 6*dpr){
+        const x = s.cx + Math.sin((y + t*dpr)*s.freq + s.phase + Math.PI) * s.amp;
+        if(y===y0) ctx.moveTo(x,y);
+        else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      // rungs
+      ctx.lineWidth = 1.0*dpr;
+      for(let y=y0; y<=y1; y+= 14*dpr){
+        const x1 = s.cx + Math.sin((y + t*dpr)*s.freq + s.phase) * s.amp;
+        const x2 = s.cx + Math.sin((y + t*dpr)*s.freq + s.phase + Math.PI) * s.amp;
+        const alpha = isDark ? 0.10 : 0.12;
+        ctx.strokeStyle = `rgba(${isDark?234:45},${isDark?240:108},${isDark?255:255},${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(x1,y);
+        ctx.lineTo(x2,y);
+        ctx.stroke();
+      }
+    }
+
+    // floating "gene particles"
+    for(const p of particles){
+      p.x += p.vx * dpr * 8;
+      p.y += p.vy * dpr * 8;
+      if(p.y > h + 20*dpr){ p.y = -20*dpr; p.x = rand(0,w); }
+      if(p.x > w + 20*dpr) p.x = -20*dpr;
+      if(p.x < -20*dpr) p.x = w + 20*dpr;
+
+      ctx.beginPath();
+      const c = isDark ? 'rgba(234,240,255,'+p.a+')' : 'rgba(10,30,70,'+p.a+')';
+      ctx.fillStyle = c;
+      ctx.arc(p.x,p.y,p.r*dpr,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', ()=>{ resize(); init(); });
+  resize(); init(); draw();
+})();
+
+/* =========================
+   2) Synthetic datasets
+   ========================= */
+const STUDIES = {
+  protective: {
+    title: "Protective-1 / Neutropenia — Dynamic-System Recovery & Integrity",
+    desc: "Docetaxel + Plinabulin vs Pegfilgrastim. Focus: DSN (Cycle 1), operational integrity, and subgroup regime structure.",
+    meta: ["DSN / ANC trajectories","Site-level integrity","Dose-response regimes","Safety / bone pain","Regulatory stress tests"],
+    kpis: {
+      risk: ["High", "3 sites show non-biological signatures (synthetic demo)", "bad"],
+      reg:  ["Stress-Ready", "48 scenario stress tests pass (synthetic demo)", "good"],
+      sig:  ["Strong", "2 latent response regimes detected (synthetic demo)", "good"],
+      story:["Actionable", "Health-econ narrative: hospital days avoided (synthetic demo)", "warn"]
     }
   },
   flu: {
-    name: "BVX-010 (Flu Vaccine)",
-    kpis: [
-      {label:"Hazard Stability Score", value:"0.74", delta:"peak-wave consistency", cls:"tagGood"},
-      {label:"Season Volatility Exposure", value:"0.41", delta:"medium dependence on attack rate", cls:"tagWarn"},
-      {label:"Replication Probability", value:"0.52", delta:"requires careful season design", cls:"tagWarn"},
-      {label:"Integrity Risk (sites)", value:"1 / 2", delta:"1 site shows variance compression", cls:"tagWarn"},
-    ],
-    chart: {
-      xLabel: "Season week",
-      yLabel: "Infection hazard (a.u.)",
-      threshold: 0.0,
-      regimeX: 9.5,
-      seriesA: [0.04,0.06,0.08,0.12,0.18,0.24,0.28,0.32,0.30,0.26,0.20,0.14,0.10,0.07,0.05],
-      seriesB: [0.04,0.05,0.07,0.10,0.14,0.18,0.20,0.22,0.21,0.19,0.16,0.12,0.09,0.06,0.05],
-      x:       [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-    },
-    heat: {
-      rows: ["PL01","PL02","PL03","PL04","PL05","PL06"],
-      cols: ["Entropy","Timing","PCR","Symptom","Copula","Smooth"],
-      z: [
-        [0.20,0.24,0.19,0.25,0.21,0.18],
-        [0.22,0.18,0.23,0.20,0.24,0.21],
-        [0.58,0.62,0.55,0.60,0.57,0.66], // flagged
-        [0.24,0.22,0.20,0.23,0.18,0.19],
-        [0.19,0.16,0.18,0.21,0.20,0.17],
-        [0.26,0.30,0.25,0.28,0.27,0.24],
-      ],
-    },
-    map: {
-      points: [
-        {id:"PL01", x:420, y:190, risk:0.21, region:"Poland"},
-        {id:"PL02", x:448, y:205, risk:0.22, region:"Poland"},
-        {id:"PL03", x:470, y:180, risk:0.62, region:"Poland"},
-        {id:"PL04", x:490, y:215, risk:0.19, region:"Poland"},
-        {id:"PL05", x:510, y:195, risk:0.17, region:"Poland"},
-        {id:"PL06", x:530, y:210, risk:0.30, region:"Poland"},
-      ]
+    title: "BVX-010 / M-001 Universal Flu Vaccine — Efficacy, Surveillance & Site Forensics",
+    desc: "Older adults 50+ across sites. Focus: confirmed ILI, severity reduction, and anti-fabrication monitoring across seasons.",
+    meta: ["ILI event pipeline","Surveillance bias control","Seasonal drift modeling","Site behavior fingerprints","Safety signal clustering"],
+    kpis: {
+      risk: ["Medium", "1 site shows batch-entry timing signature (synthetic demo)", "warn"],
+      reg:  ["Scenario-Driven", "Vaccine efficacy robustness under drift (synthetic demo)", "good"],
+      sig:  ["Moderate", "Subgroup effect by age band + comorbidity (synthetic demo)", "warn"],
+      story:["High", "Severity-days saved per season (synthetic demo)", "good"]
     }
   }
 };
 
-let currentStudy = "neutro";
+// 40 high-value products (SanaClis-facing) with technique and “how clients use it”
+const PRODUCTS = [
+  // Tier 1: Forensic Integrity (10)
+  {id:1, tier:"Tier 1: Forensic Integrity", stars:5, title:"Site State-Machine Integrity Scan", tag:["state machine","integrity","site"], tech:"Markov/State Transition Entropy + Path Topology", benefit:"Flags sites with impossible patient pathways (linear recovery, no backsliding).", clientUse:"SanaClis uses it to prevent regulator questions, to decide targeted SDV/monitoring, and to de-risk pivotal datasets."},
+  {id:2, tier:"Tier 1: Forensic Integrity", stars:5, title:"Timestamp / Batch-Entry Forensics", tag:["audit","timing","site"], tech:"Temporal clustering + round-number detection + EDC audit logs", benefit:"Detects data entered in suspicious bursts or at unrealistic times.", clientUse:"Enables proactive CRO/site remediation; strengthens data integrity in due diligence."},
+  {id:3, tier:"Tier 1: Forensic Integrity", stars:5, title:"Multivariate Dependence Audit (Copula Fingerprint)", tag:["copula","integrity","correlation"], tech:"Copula stability tests + correlation manifold drift", benefit:"Fraudsters fail to replicate true correlation structure across labs/vitals/outcomes.", clientUse:"High-value “trust score” for investors/partners; regulator-grade integrity justification."},
+  {id:4, tier:"Tier 1: Forensic Integrity", stars:4, title:"Digit Entropy / Terminal-Digit Scan", tag:["benford","integrity"], tech:"Entropy + Benford-like digit distribution tests", benefit:"Detects invented lab values and rounding patterns.", clientUse:"Quick low-cost screening; used to justify deeper audits and site visits."},
+  {id:5, tier:"Tier 1: Forensic Integrity", stars:5, title:"Duplicate / Professional-Patient Detection", tag:["identity","integrity"], tech:"Privacy-safe hashing + fuzzy linkage across demographics/visit patterns", benefit:"Finds re-enrolled patients across sites or implausible overlaps.", clientUse:"Reduces catastrophic regulatory risk; prevents endpoint contamination."},
+  {id:6, tier:"Tier 1: Forensic Integrity", stars:4, title:"Visit Interval Variance Check", tag:["visit","schedule"], tech:"Interval dispersion models + protocol-window compliance scoring", benefit:"Flags sites where everyone returns exactly on Day X.", clientUse:"Operational control: identifies unrealistic compliance and protocol gaming."},
+  {id:7, tier:"Tier 1: Forensic Integrity", stars:5, title:"Lab Machine Drift Detection", tag:["lab","drift"], tech:"Change-point detection on central lab calibration fingerprints", benefit:"Detects assay shifts that mimic treatment effects.", clientUse:"Protects efficacy claims; supports sensitivity analyses for submissions."},
+  {id:8, tier:"Tier 1: Forensic Integrity", stars:4, title:"AE Under-Reporting Signature", tag:["safety","ae"], tech:"Expected-frequency modeling + site-level anomaly scoring", benefit:"Identifies sites with implausibly low AEs vs peers.", clientUse:"Strengthens safety narrative; reduces hidden liability in audits."},
+  {id:9, tier:"Tier 1: Forensic Integrity", stars:5, title:"Missingness Mechanism Classifier", tag:["missing","integrity"], tech:"MNAR/MAR feature classifier + operational covariates", benefit:"Detects biased missingness (e.g., missing when patient worse).", clientUse:"Critical to defend robustness; informs targeted data recovery."},
+  {id:10,tier:"Tier 1: Forensic Integrity", stars:5, title:"Protocol Deviation Impact Map", tag:["protocol","risk"], tech:"Causal impact + leverage scoring by deviation type", benefit:"Quantifies how each deviation erodes p-values or effect sizes.", clientUse:"Used in sponsor updates and to prioritize corrective actions."},
 
-/* -----------------------------
-   KPI rendering
------------------------------- */
-function renderKpis(studyKey) {
-  const el = document.getElementById("kpis");
-  el.innerHTML = "";
-  const k = demo[studyKey].kpis;
-  k.forEach((x) => {
-    const div = document.createElement("div");
-    div.className = "kpi";
-    div.innerHTML = `
-      <div class="label">${x.label}</div>
-      <div class="value">${x.value}</div>
-      <div class="delta"><span class="${x.cls}">${x.delta}</span></div>
-    `;
-    el.appendChild(div);
-  });
+  // Tier 2: Efficacy Rescue & Signal Discovery (10)
+  {id:11,tier:"Tier 2: Efficacy Rescue", stars:5, title:"Latent Regime Discovery (Responder vs Non-Responder)", tag:["regime","ml"], tech:"Switching-state models + clustering on trajectories", benefit:"Finds hidden subgroups where treatment is decisively better.", clientUse:"Transforms a ‘flat’ trial into a targeted-label strategy and a strong commercial claim."},
+  {id:12,tier:"Tier 2: Efficacy Rescue", stars:5, title:"Trajectory-AUC & Shape Scoring", tag:["trajectory","topology"], tech:"Curve shape similarity + functional data analysis", benefit:"Captures clinically meaningful differences missed by point estimates.", clientUse:"Better story for KOLs and payers; strengthens endpoint interpretation."},
+  {id:13,tier:"Tier 2: Efficacy Rescue", stars:4, title:"Dose-Response Surface Modeling", tag:["dose","surface"], tech:"Nonlinear surface fits (splines) across covariates", benefit:"Optimizes dose for Phase 3 while controlling safety.", clientUse:"Enables sponsor to justify RP3D with evidence beyond basic stats."},
+  {id:14,tier:"Tier 2: Efficacy Rescue", stars:4, title:"Endpoint Harmonization & Composite Scoring", tag:["endpoint"], tech:"Composite endpoints with calibrated weights + sensitivity", benefit:"Creates robust clinical endpoints aligned to regulators and payers.", clientUse:"Used to reconcile mixed signals across endpoints into one coherent narrative."},
+  {id:15,tier:"Tier 2: Efficacy Rescue", stars:5, title:"Counterfactual Efficacy under Compliance", tag:["causal","itt"], tech:"CACE / principal stratification style modeling", benefit:"Estimates effect among compliers without breaking randomization logic.", clientUse:"Supports label claims and removes noise from deviations."},
+  {id:16,tier:"Tier 2: Efficacy Rescue", stars:5, title:"High-Resolution Time-Grid Reconstruction", tag:["signal","sql"], tech:"Deterministic interpolation rules + audit-safe smoothing", benefit:"Reconstructs continuous dynamics from sparse visits (without Monte Carlo).", clientUse:"Enables ‘dynamic risk’ plots and stronger mechanistic story."},
+  {id:17,tier:"Tier 2: Efficacy Rescue", stars:4, title:"Fragility & Leverage Index", tag:["fragility"], tech:"Permutation / influence functions", benefit:"Quantifies how many patients flip the outcome.", clientUse:"Board/investor-ready clarity on robustness and risk."},
+  {id:18,tier:"Tier 2: Efficacy Rescue", stars:4, title:"Covariate Drift Across Geographies", tag:["drift","geo"], tech:"Distribution shift tests + domain adaptation diagnostics", benefit:"Identifies where the population differs materially by country/site.", clientUse:"Guides generalizability claims; reduces approval surprises."},
+  {id:19,tier:"Tier 2: Efficacy Rescue", stars:5, title:"Safety Cluster Phenotyping", tag:["safety","cluster"], tech:"Unsupervised AE patterns + temporal co-occurrence", benefit:"Detects subpopulations at risk for specific AE profiles.", clientUse:"Supports risk management plan and targeted warnings."},
+  {id:20,tier:"Tier 2: Efficacy Rescue", stars:4, title:"Mechanism Consistency Checks", tag:["mechanism"], tech:"Constraint-based checks (biology + PK/PD coherence)", benefit:"If a site’s PK/PD is incompatible with outcome, something is wrong.", clientUse:"Key for credibility in partner/investor diligence."},
+
+  // Tier 3: Regulatory Stress & Submission Defense (10)
+  {id:21,tier:"Tier 3: Regulatory Stress", stars:5, title:"Scenario Stress Battery (Missingness, Outliers, Site Exclusion)", tag:["stress","regulatory"], tech:"Deterministic scenario grid (not Monte Carlo) + reporting matrix", benefit:"Produces regulator-ready robustness maps.", clientUse:"Used directly in submission narratives and response packages."},
+  {id:22,tier:"Tier 3: Regulatory Stress", stars:5, title:"Model Governance & Reproducibility Ledger", tag:["governance","audit"], tech:"Immutable run logs + hash-chained outputs", benefit:"Ensures every figure is reproducible and defensible.", clientUse:"Critical in audits; reduces legal risk from irreproducible analyses."},
+  {id:23,tier:"Tier 3: Regulatory Stress", stars:4, title:"Multiplicity & Endpoint Tree Control", tag:["multiplicity"], tech:"Structured endpoint trees + familywise control diagnostics", benefit:"Prevents false positives from “fishing”.", clientUse:"Preempts statistical reviewer objections."},
+  {id:24,tier:"Tier 3: Regulatory Stress", stars:5, title:"External Validity / Transportability", tag:["external"], tech:"Reweighting + covariate balancing checks", benefit:"Quantifies how results transfer to target markets.", clientUse:"Supports EU/US launch planning; improves HTA acceptance."},
+  {id:25,tier:"Tier 3: Regulatory Stress", stars:4, title:"Independent Verification Engine (Cross-implementation)", tag:["verify"], tech:"Parallel implementations (SQL + C++), consistency checks", benefit:"Eliminates hidden coding errors in analysis pipelines.", clientUse:"A ‘trust anchor’ when stakes are high."},
+  {id:26,tier:"Tier 3: Regulatory Stress", stars:5, title:"Subgroup Multiplicity Risk Map", tag:["subgroup"], tech:"Subgroup discovery with false discovery control", benefit:"Finds real subgroups while controlling false positives.", clientUse:"Supports labeling strategy and payer segmentation."},
+  {id:27,tier:"Tier 3: Regulatory Stress", stars:4, title:"Outlier Physics Detector", tag:["outlier"], tech:"Trajectory-based outlier detection (not z-scores only)", benefit:"Detects data points inconsistent with biology + process.", clientUse:"Improves dataset cleanliness and credibility."},
+  {id:28,tier:"Tier 3: Regulatory Stress", stars:4, title:"Adjudication Consistency Auditor", tag:["adjudication"], tech:"Rule consistency + NLP-assisted discrepancy detection", benefit:"Finds inconsistent endpoint adjudication across sites.", clientUse:"Prevents endpoint noise from human variability."},
+  {id:29,tier:"Tier 3: Regulatory Stress", stars:5, title:"Operational KPIs → Endpoint Mediation", tag:["operations","mediation"], tech:"Causal mediation mapping from ops metrics to outcomes", benefit:"Shows how ops failures can mimic drug failure.", clientUse:"Helps sponsor fix execution and rescue signal."},
+  {id:30,tier:"Tier 3: Regulatory Stress", stars:4, title:"Synthetic Control / Comparator Alignment", tag:["comparator"], tech:"Comparator sanity checks + baseline balancing diagnostics", benefit:"Ensures comparator behavior is consistent with historical reality.", clientUse:"Prevents “weird control arm” narratives."},
+
+  // Tier 4: Commercial / Health-Econ / Client-Ready Outputs (10)
+  {id:31,tier:"Tier 4: Commercial Value", stars:5, title:"Health-Economic Impact Engine", tag:["econ","payer"], tech:"Cost-of-event model + avoided-utilization calculator", benefit:"Translates endpoints to euros: hospital days, antibiotics, ICU, productivity.", clientUse:"Used by SanaClis to support pricing, reimbursement, and partner negotiations."},
+  {id:32,tier:"Tier 4: Commercial Value", stars:4, title:"Payer-Claim Readiness Score", tag:["payer"], tech:"Claim evidence scoring vs HTA expectations", benefit:"Measures claim strength and evidence gaps.", clientUse:"Client deliverable: ‘what to add’ to win reimbursement."},
+  {id:33,tier:"Tier 4: Commercial Value", stars:4, title:"Competitive Landscape Shape Comparison", tag:["competitive"], tech:"Curve shape similarity vs competitor trials", benefit:"Shows unique differentiation beyond p-values.", clientUse:"Powerful for BD decks and licensing."},
+  {id:34,tier:"Tier 4: Commercial Value", stars:5, title:"KOL Narrative Builder (Evidence Graph)", tag:["narrative","graph"], tech:"Evidence graph + claim-to-evidence linkage", benefit:"Turns complex analyses into clean, defensible storylines.", clientUse:"SanaClis uses it as premium deliverable to sponsors."},
+  {id:35,tier:"Tier 4: Commercial Value", stars:4, title:"Real-World Signal Alignment (RWE)", tag:["rwe"], tech:"RWE comparability checks + outcome mapping", benefit:"Positions trial results against real-world baselines.", clientUse:"Supports market access + post-marketing strategy."},
+  {id:36,tier:"Tier 4: Commercial Value", stars:4, title:"Safety Burden vs Benefit Frontier", tag:["frontier"], tech:"Risk-benefit Pareto frontier mapping", benefit:"Shows best patient segments where benefit dominates risk.", clientUse:"Improves label and reduces litigation exposure."},
+  {id:37,tier:"Tier 4: Commercial Value", stars:4, title:"Operational Playbook from Data", tag:["playbook"], tech:"Decision rules derived from site risk maps", benefit:"Converts analytics into actions for CRO and sites.", clientUse:"Turns “analysis” into measurable execution improvements."},
+  {id:38,tier:"Tier 4: Commercial Value", stars:5, title:"Client-Ready Interactive Dashboard Pack", tag:["dashboard"], tech:"Interactive HTML + PDF + slide automation", benefit:"High-end presentation artifacts for sponsors/partners.", clientUse:"SanaClis can brand and reuse as a premium service."},
+  {id:39,tier:"Tier 4: Commercial Value", stars:4, title:"AI-Assisted Data Review (Human-in-the-Loop)", tag:["ai","review"], tech:"LLM summarization + anomaly explanations + audit trail", benefit:"Accelerates review cycles without sacrificing traceability.", clientUse:"Faster deliverables and reduced expert time cost."},
+  {id:40,tier:"Tier 4: Commercial Value", stars:4, title:"IP & Claim Strategy Support", tag:["ip","strategy"], tech:"Claim mapping from endpoints to defensible differentiators", benefit:"Links evidence to patent/claim positioning.", clientUse:"Supports licensing and long-term moat narratives."}
+];
+
+const TIERS = [...new Set(PRODUCTS.map(p=>p.tier))];
+const TAGS  = ["integrity","site","copula","state machine","missing","stress","causal","regime","econ","dashboard","safety","drift","protocol","payer","ai"];
+
+/* =========================
+   3) UI wiring
+   ========================= */
+const el = (id)=>document.getElementById(id);
+
+function setKPI(idValue, idText, _idDotClass, value, text, level){
+  el(idValue).textContent = value;
+  el(idText).textContent = text;
+  const kpi = el(idValue).closest('.kpi');
+  const dot = kpi.querySelector('.dot');
+  dot.className = 'dot' + (level==='warn' ? ' warn' : level==='bad' ? ' bad' : '');
 }
 
-/* -----------------------------
-   Simple Canvas chart utility
------------------------------- */
-function drawLineChart(canvas, cfg) {
-  const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0,0,W,H);
+function setStudy(studyKey){
+  const s = STUDIES[studyKey];
 
-  // background
-  const bg = ctx.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0,"rgba(0,0,0,0.25)");
-  bg.addColorStop(1,"rgba(0,0,0,0.05)");
-  ctx.fillStyle = bg;
-  roundRect(ctx, 0,0,W,H, 16); ctx.fill();
+  el('heroTitle').textContent = s.title;
+  el('heroDesc').textContent  = "Synthetic demonstration only. " + s.desc + " Deliverables: forensic integrity, dynamic-system modeling, stress testing, and sponsor/client-grade dashboards.";
+  el('heroMeta').innerHTML = s.meta.map(x=>`<span class="tag">${x}</span>`).join("");
 
-  const pad = 38;
-  const left = pad, right = W - 18, top = 18, bottom = H - pad;
+  setKPI('kpiRisk','kpiRiskText',null, s.kpis.risk[0], s.kpis.risk[1], s.kpis.risk[2]);
+  setKPI('kpiReg','kpiRegText', null, s.kpis.reg[0],  s.kpis.reg[1],  s.kpis.reg[2]);
+  setKPI('kpiSignal','kpiSignalText',null,s.kpis.sig[0], s.kpis.sig[1], s.kpis.sig[2]);
+  setKPI('kpiStory','kpiStoryText',null, s.kpis.story[0],s.kpis.story[1],s.kpis.story[2]);
 
-  // axes range
-  const xs = cfg.x;
-  const a = cfg.seriesA;
-  const b = cfg.seriesB;
-  let ymin = Math.min(...a, ...b);
-  let ymax = Math.max(...a, ...b);
-  if (cfg.yLabel.includes("ANC")) {
-    ymin = 0;
-    ymax = Math.max(3.0, ymax*1.05);
-  } else {
-    ymin = 0;
-    ymax = Math.max(0.35, ymax*1.1);
+  // Update chart titles
+  if(studyKey==="protective"){
+    el('mainVizTitle').textContent = "Regime-Switch ANC Trajectories (Cycle 1) + DSN Risk";
+    el('mainVizHint').textContent  = "Synthetic ANC time-series with regime markers (fast vs slow recovery).";
+    el('side1Title').textContent   = "Site Integrity Heatmap (EDC/Lab Fingerprint)";
+    el('side1Hint').textContent    = "Entropy, rounding, timing, missingness, and correlation consistency.";
+    el('side2Title').textContent   = "Multivariate Dependence (ANC, WBC, Platelets, Pain, AEs)";
+    el('side2Hint').textContent    = "Parallel coordinates: detect structure breaks and drift.";
+    el('mapTitle').textContent     = "Site Heat Points — Integrity Risk + Operational Load";
+    el('mapHint').textContent      = "Synthetic sites: hover for risk score and warning flags.";
+    el('sankeyTitle').textContent  = "Causal Flow: Protocol → Execution → DSN → Infection → Utilization";
+    el('sankeyHint').textContent   = "Where sponsor value is lost (and where we can recover it).";
+  }else{
+    el('mainVizTitle').textContent = "ILI Risk Dynamics + Regime Switch (Seasonal Drift)";
+    el('mainVizHint').textContent  = "Synthetic ILI incidence/severity trajectories across seasons with regime markers.";
+    el('side1Title').textContent   = "Site Integrity Heatmap (Surveillance / Entry Behavior)";
+    el('side1Hint').textContent    = "Batch-entry, symptom linearity, swab timing, and lab confirmation patterns.";
+    el('side2Title').textContent   = "Multivariate Structure (Age, Comorbidity, Severity, qPCR timing)";
+    el('side2Hint').textContent    = "Parallel coordinates: detect bias and inconsistent dependence.";
+    el('mapTitle').textContent     = "Site Heat Points — Drift + Bias + Integrity";
+    el('mapHint').textContent      = "Synthetic site risk overlay for operational control.";
+    el('sankeyTitle').textContent  = "Causal Flow: Exposure → ILI → Confirmation → Severity → SAEs";
+    el('sankeyHint').textContent   = "Pinpoints surveillance bias and outcome adjudication choke points.";
   }
 
-  function xToPx(x) {
-    const t = (x - xs[0]) / (xs[xs.length-1] - xs[0]);
-    return left + t*(right-left);
-  }
-  function yToPx(y) {
-    const t = (y - ymin) / (ymax - ymin);
-    return bottom - t*(bottom-top);
-  }
-
-  // grid
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
-  ctx.lineWidth = 1;
-  for (let i=0;i<5;i++) {
-    const y = top + i*(bottom-top)/4;
-    ctx.beginPath();
-    ctx.moveTo(left, y);
-    ctx.lineTo(right, y);
-    ctx.stroke();
-  }
-
-  // labels
-  ctx.fillStyle = "rgba(232,238,252,0.72)";
-  ctx.font = "12px var(--mono)";
-  ctx.fillText(cfg.yLabel, left, 14);
-  ctx.fillText(cfg.xLabel, right-120, H-10);
-
-  // threshold (only meaningful for ANC)
-  if (cfg.threshold > 0) {
-    const yT = yToPx(cfg.threshold);
-    ctx.strokeStyle = "rgba(255,77,109,0.85)";
-    ctx.setLineDash([6,4]);
-    ctx.beginPath(); ctx.moveTo(left, yT); ctx.lineTo(right, yT); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "rgba(255,77,109,0.92)";
-    ctx.fillText("Threshold", right-110, yT-8);
-  }
-
-  // regime marker
-  const rX = xToPx(cfg.regimeX);
-  ctx.strokeStyle = "rgba(255,191,68,0.95)";
-  ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(rX, top); ctx.lineTo(rX, bottom); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = "rgba(255,191,68,0.95)";
-  ctx.fillText("Regime switch", rX+6, top+14);
-
-  // series A
-  plotSeries(ctx, xs, a, xToPx, yToPx, "rgba(78,161,255,0.95)");
-  // series B
-  plotSeries(ctx, xs, b, xToPx, yToPx, "rgba(46,233,197,0.95)");
-
-  // x ticks
-  ctx.fillStyle = "rgba(232,238,252,0.62)";
-  ctx.font = "11px var(--mono)";
-  for (let i=0;i<xs.length;i+=Math.ceil(xs.length/6)) {
-    const x = xToPx(xs[i]);
-    ctx.fillText(String(xs[i]), x-6, bottom+18);
-  }
+  renderAllCharts(studyKey);
 }
 
-function plotSeries(ctx, xs, ys, xToPx, yToPx, color) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i=0;i<xs.length;i++) {
-    const x = xToPx(xs[i]);
-    const y = yToPx(ys[i]);
-    if (i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-  }
-  ctx.stroke();
+/* theme */
+el('themeBtn').addEventListener('click', ()=>{
+  const cur = document.body.getAttribute('data-theme');
+  document.body.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  renderAllCharts(el('studySelect').value);
+});
 
-  // points
-  ctx.fillStyle = color;
-  for (let i=0;i<xs.length;i++) {
-    const x = xToPx(xs[i]);
-    const y = yToPx(ys[i]);
-    ctx.beginPath(); ctx.arc(x,y,3.2,0,Math.PI*2); ctx.fill();
-  }
-}
+/* study switch */
+el('studySelect').addEventListener('change', (e)=> setStudy(e.target.value));
 
-function roundRect(ctx, x, y, w, h, r) {
-  const rr = Math.min(r, w/2, h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+rr, y);
-  ctx.arcTo(x+w, y, x+w, y+h, rr);
-  ctx.arcTo(x+w, y+h, x, y+h, rr);
-  ctx.arcTo(x, y+h, x, y, rr);
-  ctx.arcTo(x, y, x+w, y, rr);
-  ctx.closePath();
-}
+/* export snapshot (simple print) */
+el('exportBtn').addEventListener('click', ()=>{
+  window.print();
+});
 
-function drawHeatmap(canvas, cfg) {
-  const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0,0,W,H);
+/* =========================
+   4) Charts with ECharts
+   ========================= */
+let chartMain, chartHeat, chartParallel, chartMap, chartSankey, chartDetail;
 
-  // background
-  ctx.fillStyle = "rgba(0,0,0,0.14)";
-  roundRect(ctx, 0,0,W,H, 16); ctx.fill();
-
-  const rows = cfg.rows, cols = cfg.cols, z = cfg.z;
-  const padL = 84;
-  const padT = 24;
-  const padR = 18;
-  const padB = 30;
-
-  const gridW = W - padL - padR;
-  const gridH = H - padT - padB;
-
-  const cellW = gridW / cols.length;
-  const cellH = gridH / rows.length;
-
-  // labels
-  ctx.fillStyle = "rgba(232,238,252,0.72)";
-  ctx.font = "11px var(--mono)";
-  ctx.fillText("Site Fingerprint Heatmap (higher = more suspicious)", 14, 14);
-
-  cols.forEach((c, j) => {
-    ctx.fillStyle = "rgba(232,238,252,0.62)";
-    ctx.fillText(c, padL + j*cellW + 6, padT - 6);
-  });
-  rows.forEach((r, i) => {
-    ctx.fillStyle = "rgba(232,238,252,0.62)";
-    ctx.fillText(r, 14, padT + i*cellH + cellH*0.65);
-  });
-
-  // cells
-  for (let i=0;i<rows.length;i++) {
-    for (let j=0;j<cols.length;j++) {
-      const v = z[i][j]; // 0..1
-      const x = padL + j*cellW;
-      const y = padT + i*cellH;
-
-      // color scale
-      const col = heatColor(v);
-      ctx.fillStyle = col.fill;
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
-      ctx.lineWidth = 1;
-      roundRect(ctx, x+2, y+2, cellW-4, cellH-4, 8);
-      ctx.fill();
-      ctx.stroke();
-
-      // value
-      ctx.fillStyle = v>0.60 ? "rgba(12,16,30,.95)" : "rgba(232,238,252,0.78)";
-      ctx.font = "11px var(--mono)";
-      const txt = (Math.round(v*100)).toString();
-      ctx.fillText(txt, x + cellW*0.40, y + cellH*0.60);
-
-      // anomaly glow
-      if (v > 0.62) {
-        ctx.strokeStyle = "rgba(255,77,109,0.75)";
-        ctx.lineWidth = 2;
-        roundRect(ctx, x+2, y+2, cellW-4, cellH-4, 8);
-        ctx.stroke();
-      }
-    }
-  }
-
-  // legend
-  const lx = W - 215, ly = H - 18;
-  ctx.fillStyle = "rgba(232,238,252,0.62)";
-  ctx.font = "11px var(--mono)";
-  ctx.fillText("risk", lx, ly);
-  for (let k=0;k<7;k++) {
-    const v = k/6;
-    const col = heatColor(v);
-    ctx.fillStyle = col.fill;
-    roundRect(ctx, lx+36 + k*22, ly-10, 18, 10, 4);
-    ctx.fill();
-  }
-}
-
-function heatColor(v) {
-  // v: 0..1
-  // smooth gradient: blue -> cyan -> amber -> red
-  function lerp(a,b,t) { return a + (b-a)*t; }
-  function rgba(r,g,b,a) { return `rgba(${r|0},${g|0},${b|0},${a})`; }
-
-  let r,g,b;
-  if (v < 0.5) {
-    // blue to cyan
-    const t = v/0.5;
-    r = lerp(78, 46, t);
-    g = lerp(161, 233, t);
-    b = lerp(255, 197, t);
-  } else {
-    // cyan to red
-    const t = (v-0.5)/0.5;
-    r = lerp(46, 255, t);
-    g = lerp(233, 77, t);
-    b = lerp(197, 109, t);
-  }
-  const a = 0.12 + 0.70*v;
+function baseOption(){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
   return {
-    fill: rgba(r,g,b,a)
+    backgroundColor: 'transparent',
+    textStyle: { fontFamily: 'Inter, system-ui, sans-serif', color: isDark ? '#eaf0ff' : '#0a1e46' }
   };
 }
 
-/* -----------------------------
-   SVG site map points
------------------------------- */
-function renderMap(studyKey) {
-  const g = document.getElementById("mapPoints");
-  g.innerHTML = "";
-  const pts = demo[studyKey].map.points;
-
-  pts.forEach((p) => {
-    const risk = p.risk;
-    const glow = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    glow.setAttribute("cx", p.x);
-    glow.setAttribute("cy", p.y);
-    glow.setAttribute("r", risk>0.55 ? "28" : "18");
-    glow.setAttribute("fill", risk>0.55 ? "url(#glowRed)" : "url(#glowBlue)");
-    g.appendChild(glow);
-
-    const dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    dot.setAttribute("cx", p.x);
-    dot.setAttribute("cy", p.y);
-    dot.setAttribute("r", risk>0.55 ? "6" : "5");
-    dot.setAttribute("fill", risk>0.55 ? "rgba(255,77,109,.95)" : "rgba(78,161,255,.95)");
-    dot.setAttribute("stroke", "rgba(255,255,255,.20)");
-    dot.setAttribute("stroke-width", "1");
-    dot.style.cursor = "pointer";
-
-    const title = document.createElementNS("http://www.w3.org/2000/svg","title");
-    const band = risk>0.62 ? "HIGH" : risk>0.40 ? "MEDIUM" : "LOW";
-    title.textContent = `${p.id} • Risk: ${Math.round(risk*100)} (${band}) • Region: ${p.region}`;
-    dot.appendChild(title);
-
-    g.appendChild(dot);
-
-    const label = document.createElementNS("http://www.w3.org/2000/svg","text");
-    label.setAttribute("x", p.x + 10);
-    label.setAttribute("y", p.y + 4);
-    label.setAttribute("fill", "rgba(232,238,252,.62)");
-    label.setAttribute("font-size", "11");
-    label.setAttribute("font-family", "var(--mono)");
-    label.textContent = p.id;
-    g.appendChild(label);
+function makeMainSeries(study){
+  // Synthetic dynamic trajectories with regime markers (not Monte Carlo)
+  const days = [0,1,2,6,7,8,9,10,15];
+  const mk = (seed,base,drop,rec)=> days.map((d,i)=>{
+    // deterministic pseudo
+    const x = d;
+    const y = Math.max(0.1, base + (Math.sin((seed+i)*1.9)*0.12) - (i<2?0:drop*(i-1)) + rec*Math.log(1+i));
+    return [x, +(y*1000).toFixed(0)];
   });
-}
 
-/* -----------------------------
-   Study switch + render
------------------------------- */
-function renderAll(studyKey) {
-  currentStudy = studyKey;
-  renderKpis(studyKey);
-
-  const traj = document.getElementById("trajChart");
-  drawLineChart(traj, demo[studyKey].chart);
-
-  const heat = document.getElementById("heatChart");
-  drawHeatmap(heat, demo[studyKey].heat);
-
-  renderMap(studyKey);
-}
-
-document.getElementById("studySeg").addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-  document.querySelectorAll("#studySeg button").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  renderAll(btn.dataset.study);
-});
-
-/* -----------------------------
-   Filter 40 items
------------------------------- */
-const search = document.getElementById("globalSearch");
-search.addEventListener("input", () => {
-  const q = search.value.trim().toLowerCase();
-  document.querySelectorAll("#items .item").forEach((card) => {
-    const txt = card.innerText.toLowerCase();
-    card.style.display = (!q || txt.includes(q)) ? "" : "none";
-  });
-});
-
-/* -----------------------------
-   Export brief (demo)
------------------------------- */
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 1600);
-}
-
-document.getElementById("exportBtn").addEventListener("click", async () => {
-  const study = demo[currentStudy];
-  const lines = [
-    "FDS — Executive Brief (Demo / Synthetic)",
-    `Study: ${study.name}`,
-    "",
-    "Top Signals:",
-    ...study.kpis.map(k => `- ${k.label}: ${k.value} (${
-      k.delta.replace(/\s+/g,' ').trim()
-    })`),
-    "",
-    "Why this matters:",
-    "- Stability analysis: distinguishes mechanistic signal vs threshold artifacts",
-    "- Integrity layer: identifies site fingerprints inconsistent with biology / operations",
-    "- Replication probability: provides decision-grade uncertainty for boards/investors",
-    "",
-    "Note: Synthetic dashboard for capability demonstration only."
-  ].join("\n");
-
-  try {
-    await navigator.clipboard.writeText(lines);
-    showToast("Copied executive brief to clipboard (demo)");
-  } catch (err) {
-    showToast("Clipboard blocked — select and copy from console (demo)");
-    console.log(lines);
+  if(study==="protective"){
+    const fast = mk(2, 1.6,0.22,0.55).map(([x,y])=>[x, Math.min(3500, y)]);
+    const slow = mk(7, 1.5,0.30,0.28).map(([x,y])=>[x, Math.min(2600, y)]);
+    const control = mk(11,1.6,0.26,0.40).map(([x,y])=>[x, Math.min(3000, y)]);
+    return { days, fast, slow, control, yName:"ANC (cells/µL)" };
+  }else{
+    // ILI severity index (lower is better) + seasonal regime switches
+    const make = (seed,base,trend,amp)=> days.map((d,i)=>{
+      const y = base + trend*i + Math.sin((seed+i)*1.4)*amp + (i>4?0.6:0); // drift after day 7 (season)
+      return [d, +(y).toFixed(2)];
+    });
+    return { days, fast: make(4, 1.10, 0.03, 0.08), slow: make(9, 1.18, 0.04, 0.10), control: make(13,1.22,0.05,0.09), yName:"ILI Severity Index" };
   }
-});
+}
 
-// initial render
-renderAll("neutro");
+function renderMain(study){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const colors = isDark ? ['#5aa2ff','#34d399','#f59e0b'] : ['#2d6cff','#10b981','#f59e0b'];
+
+  const s = makeMainSeries(study);
+  const regimeMarks = study==="protective"
+    ? [{xAxis:2, label:{formatter:'Myelosuppression'}, lineStyle:{type:'dashed'}},
+       {xAxis:8, label:{formatter:'Recovery regime'}, lineStyle:{type:'dashed'}}]
+    : [{xAxis:7, label:{formatter:'Seasonal drift'}, lineStyle:{type:'dashed'}},
+       {xAxis:10, label:{formatter:'Surveillance regime'}, lineStyle:{type:'dashed'}}];
+
+  const option = {
+    ...baseOption(),
+    tooltip: { trigger:'axis' },
+    legend: { top: 8, textStyle:{color: isDark?'#eaf0ff':'#0a1e46'} },
+    grid: { left: 52, right: 18, top: 50, bottom: 40 },
+    xAxis: {
+      type:'value', name:'Day', nameTextStyle:{color:isDark?'#cfe0ff':'#0a1e46'},
+      axisLine:{lineStyle:{color:isDark?'rgba(255,255,255,.22)':'rgba(10,30,70,.22)'}},
+      splitLine:{lineStyle:{color:isDark?'rgba(255,255,255,.08)':'rgba(10,30,70,.08)'}}
+    },
+    yAxis: {
+      type:'value', name: s.yName, nameTextStyle:{color:isDark?'#cfe0ff':'#0a1e46'},
+      axisLine:{lineStyle:{color:isDark?'rgba(255,255,255,.22)':'rgba(10,30,70,.22)'}},
+      splitLine:{lineStyle:{color:isDark?'rgba(255,255,255,.08)':'rgba(10,30,70,.08)'}}
+    },
+    dataZoom: [{type:'inside'},{type:'slider', height:18}],
+    series: [
+      { name: study==="protective" ? "Plinabulin — Fast Recovery Regime" : "M-001 — Lower Severity Regime",
+        type:'line', smooth:true, symbolSize:7, lineStyle:{width:3}, itemStyle:{color:colors[1]},
+        data: s.fast,
+        markLine:{symbol:'none', data: regimeMarks, label:{color:isDark?'#eaf0ff':'#0a1e46'} }
+      },
+      { name: study==="protective" ? "Plinabulin — Slow Recovery Regime" : "M-001 — Drift-Exposed Regime",
+        type:'line', smooth:true, symbolSize:7, lineStyle:{width:3}, itemStyle:{color:colors[0]},
+        data: s.slow
+      },
+      { name: study==="protective" ? "Pegfilgrastim (Control)" : "Placebo (Control)",
+        type:'line', smooth:true, symbolSize:7, lineStyle:{width:3}, itemStyle:{color:colors[2]},
+        data: s.control
+      }
+    ]
+  };
+  chartMain.setOption(option, true);
+}
+
+function renderHeat(study){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const sites = study==="protective"
+    ? ["Stanford","Skokie","Harbin","Sochi","Volgograd","Dnipro","Lviv","Kyiv","Sumy"]
+    : ["Krakow-01","Krakow-02","Site-03","Site-04","Site-05","Site-06","Site-07","Site-08","Site-09"];
+
+  const metrics = ["Entropy","Timing","Digits","Missing","Corr","AEs","Intervals","PK/PD","Outliers"];
+
+  // synthetic matrix: higher = worse risk
+  const data = [];
+  for(let y=0;y<sites.length;y++){
+    for(let x=0;x<metrics.length;x++){
+      let v = Math.abs(Math.sin((x+1)*(y+1)*0.62))*0.7 + Math.abs(Math.cos((x+3)*(y+2)*0.38))*0.3;
+      // inject some anomalies
+      if(study==="protective" && (sites[y]==="Sochi" || sites[y]==="Dnipro") && (metrics[x]==="Timing" || metrics[x]==="Corr")) v = 0.98;
+      if(study==="protective" && sites[y]==="Volgograd" && metrics[x]==="Digits") v = 0.92;
+      if(study==="flu" && sites[y]==="Site-06" && (metrics[x]==="Timing" || metrics[x]==="Intervals")) v = 0.90;
+      data.push([x,y, +(v*100).toFixed(0)]);
+    }
+  }
+
+  const option = {
+    ...baseOption(),
+    tooltip: { position:'top' },
+    grid: { top: 30, left: 90, right: 20, bottom: 20 },
+    xAxis: {
+      type:'category', data: metrics,
+      axisLabel:{ color: isDark?'rgba(234,240,255,.8)':'rgba(10,30,70,.75)' },
+      axisLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.18)':'rgba(10,30,70,.18)'} }
+    },
+    yAxis: {
+      type:'category', data: sites,
+      axisLabel:{ color: isDark?'rgba(234,240,255,.8)':'rgba(10,30,70,.75)' },
+      axisLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.18)':'rgba(10,30,70,.18)'} }
+    },
+    visualMap: {
+      min: 0, max: 100, calculable: false, orient:'horizontal',
+      left:'center', bottom: -6,
+      inRange: {
+        color: isDark
+          ? ['rgba(234,240,255,0.10)','rgba(90,162,255,0.35)','rgba(245,158,11,0.55)','rgba(239,68,68,0.85)']
+          : ['rgba(10,30,70,0.06)','rgba(45,108,255,0.28)','rgba(245,158,11,0.50)','rgba(239,68,68,0.85)']
+      }
+    },
+    series: [{
+      name:'Risk', type:'heatmap', data,
+      emphasis: { itemStyle: { shadowBlur: 18, shadowColor: isDark?'rgba(239,68,68,.45)':'rgba(239,68,68,.28)' } },
+      label: { show:false }
+    }]
+  };
+  chartHeat.setOption(option, true);
+}
+
+function renderParallel(study){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const dims = study==="protective"
+    ? ["ANC_nadir","DSN_days","Platelets","Pain_AUC","Infections","Dose","Age"]
+    : ["Age","Comorbidity","ILI_events","qPCR_delay","Severity_days","SAEs","Season_drift"];
+
+  // synthetic rows
+  const rows = [];
+  for(let i=0;i<70;i++){
+    const seed = i+1;
+    let r = dims.map((_,k)=> {
+      let v = Math.abs(Math.sin((seed+k)*0.73))*0.9 + Math.abs(Math.cos((seed+2*k)*0.21))*0.4;
+      return +(v*100).toFixed(1);
+    });
+    // inject a small group with broken dependence (site bias)
+    if(i>55){
+      r = r.map((v,idx)=> idx%2===0 ? Math.min(100, v+18) : Math.max(0, v-22));
+    }
+    rows.push(r);
+  }
+
+  const option = {
+    ...baseOption(),
+    tooltip: {},
+    parallelAxis: dims.map((d,i)=>({
+      dim:i, name:d, nameLocation:'end',
+      nameTextStyle:{ color: isDark?'rgba(234,240,255,.7)':'rgba(10,30,70,.65)', fontSize:11 },
+      axisLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.18)':'rgba(10,30,70,.18)'}},
+      splitLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.06)':'rgba(10,30,70,.06)'}}
+    })),
+    parallel: {
+      left: 20, right: 40, top: 18, bottom: 10,
+      parallelAxisDefault: { type:'value' }
+    },
+    series: [{
+      type:'parallel',
+      lineStyle: { width: 1.2, opacity: 0.25 },
+      data: rows
+    }]
+  };
+  chartParallel.setOption(option, true);
+}
+
+function renderMap(study){
+  // Not a real map (offline). Instead: site positions with risk score.
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const nodes = study==="protective"
+    ? [
+      {name:"USA-CA", x:14,y:32, risk:32}, {name:"USA-IL",x:22,y:36,risk:28},
+      {name:"China-Harbin",x:72,y:26,risk:38}, {name:"Russia-Sochi",x:60,y:48,risk:82},
+      {name:"Russia-Volgograd",x:58,y:40,risk:74}, {name:"Ukraine-Dnipro",x:52,y:44,risk:88},
+      {name:"Ukraine-Kyiv",x:50,y:36,risk:34}, {name:"Ukraine-Lviv",x:46,y:34,risk:30},
+      {name:"China-Zhengzhou",x:68,y:34,risk:42},
+    ]
+    : [
+      {name:"Poland-Krakow-01",x:52,y:34,risk:22}, {name:"Poland-Krakow-02",x:54,y:36,risk:20},
+      {name:"Site-03",x:58,y:33,risk:34}, {name:"Site-04",x:48,y:37,risk:28},
+      {name:"Site-05",x:62,y:40,risk:30}, {name:"Site-06",x:66,y:38,risk:78},
+      {name:"Site-07",x:44,y:34,risk:26}, {name:"Site-08",x:56,y:42,risk:32},
+      {name:"Site-09",x:60,y:30,risk:24},
+    ];
+
+  const seriesData = nodes.map(n=>({name:n.name, value:[n.x,n.y,n.risk]}));
+
+  const option = {
+    ...baseOption(),
+    tooltip: {
+      formatter: (p)=> `<b>${p.name}</b><br/>Integrity/Drift Risk: <b>${p.value[2]}</b>`
+    },
+    xAxis: { type:'value', min:0, max:100, show:false },
+    yAxis: { type:'value', min:0, max:60, show:false },
+    visualMap: {
+      min:0, max:100, show:false,
+      inRange:{ color: isDark ? ['#34d399','#f59e0b','#ef4444'] : ['#10b981','#f59e0b','#ef4444'] }
+    },
+    graphic: [
+      {
+        type:'rect',
+        left: '6%', top: '10%',
+        shape:{ width: '88%', height:'78%' },
+        style:{
+          fill: isDark ? 'rgba(10,18,38,0.25)' : 'rgba(255,255,255,0.35)',
+          stroke: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(10,30,70,0.10)',
+          lineWidth: 1
+        }
+      }
+    ],
+    series: [{
+      type:'scatter',
+      symbolSize: (val)=> 6 + (val[2]/100)*22,
+      data: seriesData,
+      label: { show:true, formatter:'{b}', position:'right', color: isDark?'rgba(234,240,255,.85)':'rgba(10,30,70,.75)', fontSize: 11 },
+      itemStyle:{
+        opacity: 0.95,
+        borderColor: isDark?'rgba(255,255,255,.25)':'rgba(10,30,70,.18)',
+        borderWidth: 1,
+        shadowBlur: 18,
+        shadowColor: isDark?'rgba(239,68,68,.25)':'rgba(239,68,68,.18)'
+      }
+    }]
+  };
+
+  chartMap.setOption(option, true);
+}
+
+function renderSankey(study){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+
+  const nodes = study==="protective"
+    ? [
+      {name:"Protocol Windows"}, {name:"Site Execution"}, {name:"ANC Sampling Fidelity"}, {name:"DSN"}, {name:"Infections"},
+      {name:"Antibiotics"}, {name:"Hospitalization"}, {name:"Payer Impact"}, {name:"Regulatory Questions"}, {name:"Commercial Claim"}
+    ]
+    : [
+      {name:"Exposure"}, {name:"ILI Symptoms"}, {name:"Swab Timing"}, {name:"qPCR Confirmed"}, {name:"Severity Days"},
+      {name:"SAEs"}, {name:"Healthcare Utilization"}, {name:"VE Estimate"}, {name:"Surveillance Bias"}, {name:"Label Narrative"}
+    ];
+
+  const links = study==="protective"
+    ? [
+      {source:"Protocol Windows", target:"Site Execution", value: 90},
+      {source:"Site Execution", target:"ANC Sampling Fidelity", value: 82},
+      {source:"ANC Sampling Fidelity", target:"DSN", value: 70},
+      {source:"DSN", target:"Infections", value: 42},
+      {source:"Infections", target:"Antibiotics", value: 35},
+      {source:"Infections", target:"Hospitalization", value: 20},
+      {source:"Hospitalization", target:"Payer Impact", value: 18},
+      {source:"ANC Sampling Fidelity", target:"Regulatory Questions", value: 28},
+      {source:"DSN", target:"Commercial Claim", value: 40},
+      {source:"Regulatory Questions", target:"Commercial Claim", value: 12}
+    ]
+    : [
+      {source:"Exposure", target:"ILI Symptoms", value: 100},
+      {source:"ILI Symptoms", target:"Swab Timing", value: 72},
+      {source:"Swab Timing", target:"qPCR Confirmed", value: 58},
+      {source:"qPCR Confirmed", target:"Severity Days", value: 45},
+      {source:"Severity Days", target:"SAEs", value: 10},
+      {source:"Severity Days", target:"Healthcare Utilization", value: 12},
+      {source:"qPCR Confirmed", target:"VE Estimate", value: 56},
+      {source:"Swab Timing", target:"Surveillance Bias", value: 30},
+      {source:"Surveillance Bias", target:"VE Estimate", value: 20},
+      {source:"VE Estimate", target:"Label Narrative", value: 48}
+    ];
+
+  const option = {
+    ...baseOption(),
+    tooltip: { trigger:'item', triggerOn:'mousemove' },
+    series: [{
+      type:'sankey',
+      data: nodes,
+      links: links,
+      emphasis: { focus:'adjacency' },
+      lineStyle: { color:'source', curveness: 0.5, opacity: 0.35 },
+      itemStyle: {
+        borderWidth: 1,
+        borderColor: isDark ? 'rgba(255,255,255,.18)' : 'rgba(10,30,70,.14)'
+      },
+      label: { color: isDark?'rgba(234,240,255,.85)':'rgba(10,30,70,.80)', fontWeight: 700 }
+    }]
+  };
+
+  chartSankey.setOption(option, true);
+}
+
+function renderDetailExample(product){
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const p = product;
+
+  const mkSunburst = ()=>({
+    ...baseOption(),
+    series: [{
+      type:'sunburst',
+      radius: [0,'92%'],
+      itemStyle: { borderColor: isDark?'rgba(255,255,255,.08)':'rgba(10,30,70,.08)', borderWidth: 1 },
+      label: { rotate:'radial', color: isDark?'rgba(234,240,255,.85)':'rgba(10,30,70,.85)' },
+      data: [
+        {name:"Sponsor Value", children:[
+          {name:"Data Integrity", value: 38, children:[
+            {name:"Timing", value: 12},{name:"Digits", value: 9},{name:"Missingness", value: 8},{name:"Dependence", value: 9}
+          ]},
+          {name:"Efficacy Signal", value: 34, children:[
+            {name:"Regimes", value: 14},{name:"Trajectory shape", value: 10},{name:"Subgroups", value: 10}
+          ]},
+          {name:"Regulatory Defense", value: 28, children:[
+            {name:"Stress grid", value: 12},{name:"Reproducibility", value: 8},{name:"Multiplicity", value: 8}
+          ]}
+        ]}
+      ]
+    }]
+  });
+
+  const mkGraph = ()=>({
+    ...baseOption(),
+    tooltip: {},
+    series: [{
+      type:'graph',
+      layout:'force',
+      roam:true,
+      force:{ repulsion: 130, edgeLength: 90 },
+      data: [
+        {name:"Site A", value:10, symbolSize: 22},
+        {name:"Site B", value:12, symbolSize: 26},
+        {name:"Site C", value:18, symbolSize: 34},
+        {name:"EDC Timing", value:9, symbolSize: 18},
+        {name:"Lab Digits", value:8, symbolSize: 16},
+        {name:"Correlation Drift", value:14, symbolSize: 28},
+        {name:"Outcome Noise", value:16, symbolSize: 30},
+        {name:"Regulatory Risk", value:20, symbolSize: 38}
+      ],
+      links: [
+        {source:"Site C", target:"EDC Timing"},
+        {source:"Site C", target:"Correlation Drift"},
+        {source:"Site C", target:"Outcome Noise"},
+        {source:"Outcome Noise", target:"Regulatory Risk"},
+        {source:"Correlation Drift", target:"Regulatory Risk"},
+        {source:"Lab Digits", target:"Regulatory Risk"},
+        {source:"Site A", target:"Lab Digits"},
+        {source:"Site B", target:"EDC Timing"},
+      ],
+      label: { show:true, color: isDark?'rgba(234,240,255,.85)':'rgba(10,30,70,.85)', fontWeight: 700 },
+      lineStyle: { opacity: 0.35, width: 2 }
+    }]
+  });
+
+  const mkBar = ()=>({
+    ...baseOption(),
+    tooltip: { trigger:'axis' },
+    grid: { left: 52, right: 16, top: 20, bottom: 40 },
+    xAxis: { type:'category', data:["Base","+Missingness","-Site C","+Outliers","Alt Endpoint","Strict Windows"], axisLabel:{ rotate: 18 } },
+    yAxis: { type:'value', name:"Effect / Robustness Score" },
+    series: [{
+      type:'bar',
+      data:[0.52,0.49,0.61,0.46,0.58,0.55],
+      itemStyle:{ opacity:0.9 }
+    }]
+  });
+
+  const mkRadar = ()=>({
+    ...baseOption(),
+    tooltip: {},
+    radar: {
+      indicator: [
+        {name:'Integrity', max:100},
+        {name:'Signal', max:100},
+        {name:'Regulatory', max:100},
+        {name:'Ops Control', max:100},
+        {name:'Commercial', max:100}
+      ],
+      splitLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.08)':'rgba(10,30,70,.08)'} },
+      splitArea:{ areaStyle:{color:isDark?['rgba(10,18,38,0.0)','rgba(10,18,38,0.10)']:['rgba(255,255,255,0.0)','rgba(255,255,255,0.25)']} },
+      axisLine:{ lineStyle:{color:isDark?'rgba(255,255,255,.12)':'rgba(10,30,70,.12)'} },
+      axisName:{ color:isDark?'rgba(234,240,255,.75)':'rgba(10,30,70,.65)' }
+    },
+    series: [{
+      type:'radar',
+      data:[
+        {value:[92,80,88,76,70], name:'FDS Deliverable'}
+      ],
+      areaStyle:{ opacity:0.18 }
+    }]
+  });
+
+  let option;
+  if(p.tier.includes("Forensic") || p.tag.includes("integrity") || p.tag.includes("copula") || p.tag.includes("site")){
+    option = mkGraph();
+  }else if(p.tier.includes("Regulatory") || p.tag.includes("stress") || p.tag.includes("multiplicity")){
+    option = mkBar();
+  }else if(p.tag.includes("econ") || p.tag.includes("payer") || p.tier.includes("Commercial")){
+    option = mkSunburst();
+  }else if(p.tag.includes("regime") || p.tag.includes("causal")){
+    option = mkRadar();
+  }else{
+    option = mkSunburst();
+  }
+  chartDetail.setOption(option, true);
+}
+
+function renderAllCharts(study){
+  if(typeof echarts === 'undefined'){
+    const msg = "ECharts failed to load (offline). Connect to the internet or bundle echarts locally.";
+    for(const id of ["vizMain","vizHeat","vizParallel","vizMap","vizSankey","vizDetail"]){
+      document.getElementById(id).innerHTML = `<div style="padding:14px;color:var(--muted);font-weight:700;">${msg}</div>`;
+    }
+    return;
+  }
+
+  chartMain = echarts.init(el('vizMain'));
+  chartHeat = echarts.init(el('vizHeat'));
+  chartParallel = echarts.init(el('vizParallel'));
+  chartMap = echarts.init(el('vizMap'));
+  chartSankey = echarts.init(el('vizSankey'));
+  chartDetail = echarts.init(el('vizDetail'));
+
+  renderMain(study);
+  renderHeat(study);
+  renderParallel(study);
+  renderMap(study);
+  renderSankey(study);
+
+  window.addEventListener('resize', ()=>{
+    chartMain?.resize(); chartHeat?.resize(); chartParallel?.resize(); chartMap?.resize(); chartSankey?.resize(); chartDetail?.resize();
+  });
+
+  if(window.__selectedProduct) renderDetailExample(window.__selectedProduct);
+}
+
+/* =========================
+   5) 40-item list UI
+   ========================= */
+const tierTabs = el('tierTabs');
+const chips = el('chips');
+const items = el('items');
+const search = el('search');
+
+let activeTier = TIERS[0];
+let activeTag = null;
+
+function stars(n){
+  return "★★★★★☆☆☆☆☆".slice(5-n, 10-n);
+}
+
+function renderTierTabs(){
+  tierTabs.innerHTML = "";
+  TIERS.forEach(t=>{
+    const d = document.createElement('div');
+    d.className = 'tab' + (t===activeTier?' active':'');
+    d.textContent = t;
+    d.onclick = ()=>{ activeTier=t; renderTierTabs(); renderItems(); };
+    tierTabs.appendChild(d);
+  });
+}
+
+function renderChips(){
+  chips.innerHTML = "";
+  TAGS.forEach(tag=>{
+    const c = document.createElement('div');
+    c.className = 'chip' + (activeTag===tag?' active':'');
+    c.textContent = tag;
+    c.onclick = ()=>{ activeTag = (activeTag===tag?null:tag); renderChips(); renderItems(); };
+    chips.appendChild(c);
+  });
+}
+
+function renderItems(){
+  const q = (search.value||"").toLowerCase().trim();
+  const filtered = PRODUCTS.filter(p=>{
+    if(p.tier !== activeTier) return false;
+    if(activeTag && !p.tag.includes(activeTag)) return false;
+    if(q){
+      const hay = (p.title+" "+p.benefit+" "+p.tech+" "+p.clientUse+" "+p.tag.join(" ")).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  items.innerHTML = "";
+  filtered.forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `
+      <div class="itemTop">
+        <div class="itemTitle">${p.id}. ${p.title}</div>
+        <div class="stars">${stars(p.stars)}</div>
+      </div>
+      <div class="itemDesc">${p.benefit}</div>
+      <div class="metaRow">
+        <span class="badge">${p.tech}</span>
+        <span class="badge">tags: ${p.tag.slice(0,3).join(", ")}</span>
+      </div>
+    `;
+    div.onclick = ()=> selectProduct(p);
+    items.appendChild(div);
+  });
+
+  if(filtered.length===0){
+    items.innerHTML = `<div style="color:var(--muted);padding:10px;font-weight:700;">No items match your filter.</div>`;
+  }
+}
+
+function selectProduct(p){
+  window.__selectedProduct = p;
+  el('detailTitle').textContent = `${p.id}. ${p.title}`;
+  el('detailMini').textContent = `${p.tech} • ${p.tier}`;
+  el('detailStars').textContent = stars(p.stars);
+
+  el('detailText').innerHTML = `
+    <div style="display:grid;gap:10px;">
+      <div><strong>Why SanaClis cares:</strong> ${p.benefit}</div>
+      <div><strong>Technique (example):</strong> ${p.tech}</div>
+      <div><strong>How SanaClis uses it with clients:</strong> ${p.clientUse}</div>
+      <div style="color:var(--muted2);font-size:12px;">
+        Implementation note: we run this at SQL scale (EDC/labs/ops logs) and produce regulator-ready sensitivity tables plus interactive outputs.
+      </div>
+    </div>
+  `;
+
+  if(chartDetail) renderDetailExample(p);
+}
+
+search.addEventListener('input', renderItems);
+
+/* =========================
+   Init
+   ========================= */
+renderTierTabs();
+renderChips();
+renderItems();
+
+selectProduct(PRODUCTS[0]);
+setStudy('protective');
+setTimeout(()=> renderAllCharts(el('studySelect').value), 50);
 </script>
 </body>
 </html>
