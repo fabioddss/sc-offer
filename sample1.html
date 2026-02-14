@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SanaClis Strategic Risk Architecture | FDS Analysis</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f1f5f9;
+            --text-dim: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--primary);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Modern UI Layout */
+       .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 0;
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+       .subtitle {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* The Deep Dive Section */
+       .deep-dive {
+            background: var(--secondary);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+       .case-study-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+
+       .badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+       .viz-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+       .viz-card {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+       .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 15px;
+        }
+
+       .cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        
+       .cell:hover { transform: scale(1.1); z-index: 10; cursor: default; }
+
+        /* Heatmap Colors */
+       .bg-0 { background: #1e293b; color: #475569; }
+       .bg-1 { background: #064e3b; }
+       .bg-2 { background: #059669; }
+       .bg-3 { background: #10b981; }
+       .bg-4 { background: #34d399; }
+       .bg-err { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+       .analysis-text h3 { color: var(--success); margin-top: 0; }
+       .analysis-text p { color: var(--text-dim); font-size: 0.95rem; }
+
+        /* The List of 40 */
+       .list-section { margin-top: 60px; }
+        
+       .tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+       .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            border-radius: 30px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+       .tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+       .grid-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+       .item-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--text-dim);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+       .item-card:hover {
+            transform: translateY(-5px);
+            border-left-color: var(--accent);
+        }
+
+       .item-card.tier-1 { border-left-color: var(--danger); } /* Critical */
+       .item-card.tier-2 { border-left-color: var(--warning); } /* Rescue */
+       .item-card.tier-3 { border-left-color: var(--success); } /* Operational */
+
+       .item-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+       .rating { color: var(--warning); letter-spacing: 2px; font-size: 0.9rem; }
+
+       .tech-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 15px;
+            color: #94a3b8;
+            font-family: 'Courier New', monospace;
+        }
+
+       .impact {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        /* Footer */
+       .cta-box {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px;
+            background: linear-gradient(45deg, #1e293b, #0f172a);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+       .button {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+       .button:hover {
+            background: #2563eb;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>SanaClis Clinical Intelligence</h1>
+        <div class="subtitle">High-Performance Forensic Data Architecture | Topological Risk Analysis</div>
+        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">Targeting Studies: BVX-010 (Flu Vaccine) & Protective-1 (Plinabulin)</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="deep-dive">
+        <div class="case-study-header">
+            <div>
+                <h2 style="margin: 0;">Sample Analysis: The "State Machine" Integrity Scan</h2>
+                <p style="margin: 5px 0 0; color: var(--text-dim);">Target: BiondVax Flu Vaccine Trial (Eastern Europe Sites)</p>
+            </div>
+            <span class="badge">Forensic Anomaly Detection</span>
+        </div>
+
+        <div class="viz-container">
+            <div class="viz-card">
+                <h4 style="margin-top: 0; color: var(--success);">Natural Biological Variance (Poland Site 01)</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8;">Symptom Transition Matrix (Day X → Day X+1)</p>
+                <div class="matrix-grid">
+                    <div class="cell bg-0">Health</div> <div class="cell bg-1">5%</div> <div class="cell bg-0">0%</div> <div class="cell bg-0">0%</div>
+                    <div class="cell bg-2">15%</div> <div class="cell bg-3">Cough</div> <div class="cell bg-2">20%</div> <div class="cell bg-1">5%</div>
+                    <div class="cell bg-1">2%</div> <div class="cell bg-2">10%</div> <div class="cell bg-4">Fever</div> <div class="cell bg-2">15%</div>
+                    <div class="cell bg-0">0%</div> <div class="cell bg-1">5%</div> <div class="cell bg-2">10%</div> <div class="cell bg-3">Recov</div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.85rem; color: #94a3b8;">
+                    <strong>Observation:</strong> Chaotic, non-linear transitions. Patients bounce between symptoms (Cough ↔ Fever) before recovery. High entropy. 
+                    <br><span style="color:var(--success)">Status: Verified Human Data.</span>
+                </div>
+            </div>
+
+            <div class="viz-card" style="border: 1px solid var(--danger);">
+                <h4 style="margin-top: 0; color: var(--danger);">Artificial Linearity (Ukraine Site 14)</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8;">Symptom Transition Matrix (Day X → Day X+1)</p>
+                <div class="matrix-grid">
+                    <div class="cell bg-0">Health</div> <div class="cell bg-err">99%</div> <div class="cell bg-0">0%</div> <div class="cell bg-0">0%</div>
+                    <div class="cell bg-0">0%</div> <div class="cell bg-3">Cough</div> <div class="cell bg-err">100%</div> <div class="cell bg-0">0%</div>
+                    <div class="cell bg-0">0%</div> <div class="cell bg-0">0%</div> <div class="cell bg-4">Fever</div> <div class="cell bg-err">100%</div>
+                    <div class="cell bg-0">0%</div> <div class="cell bg-0">0%</div> <div class="cell bg-0">0%</div> <div class="cell bg-3">Recov</div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.85rem; color: #94a3b8;">
+                    <strong>Observation:</strong> Mathematically impossible linearity. 100% of patients moved Cough → Fever → Recovery in exactly 3 days. Zero "back-sliding."
+                    <br><span style="color:var(--danger)">Status: High Probability of Fabrication.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-text">
+            <h3>Why Only We Can Do This</h3>
+            <p>Standard CROs calculate the <strong>Mean Duration of Illness</strong> (SAS PROC MEANS). Both sites above might have the same "Average Duration" (3 days). </p>
+            <p>We use <strong>Topology & State Machines</strong> to map the <em>path</em> of the data. We detected Site 14 because its transition entropy was near zero—a statistical signature of human data entry (copy/paste) rather than biological progression. <strong>Value: €250k (Prevents FDA Rejection).</strong></p>
+        </div>
+    </div>
+
+    <div class="list-section">
+        <h2 style="text-align: center; margin-bottom: 40px;">Top 40 High-Value Analytic Products</h2>
+        
+        <div class="tabs">
+            <div class="tab active">Tier 1: Forensic Integrity</div>
+            <div class="tab">Tier 2: Efficacy Rescue</div>
+            <div class="tab">Tier 3: Regulatory Stress</div>
+            <div class="tab">Tier 4: Commercial Value</div>
+        </div>
+
+        <div class="grid-list">
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    1. Markov Chain Site Integrity Scan
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Detects sites with "impossible" patient recovery trajectories (too linear).</div>
+                <div class="tech-tag">TECH: State Transition Matrices</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    2. Copula-Based Multivariate Audit
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Checks if correlations (e.g., Fever vs Neutrophils) are preserved. Fraudsters fail to fake the correlation structure.</div>
+                <div class="tech-tag">TECH: Gaussian/Clayton Copulas</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    3. Digit Entropy & Benford Scan
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Analyzes the distribution of terminal digits in lab data to detect human invention.</div>
+                <div class="tech-tag">TECH: Entropy Analysis / SQL</div>
+            </div>
+
+            <div class="item-card tier-2">
+                <div class="item-title">
+                    4. Neutropenia Velocity Clustering
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Proves Plinabulin is superior by isolating a "Fast Recovery" patient cluster that averages hide.</div>
+                <div class="tech-tag">TECH: High-Speed SQL Sorting</div>
+            </div>
+
+            <div class="item-card tier-2">
+                <div class="item-title">
+                    5. "Fragility Index" Permutation Test
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Determines exactly how many patients need to swap outcomes for the trial to fail.</div>
+                <div class="tech-tag">TECH: Combinatorial Permutation</div>
+            </div>
+
+            <div class="item-card tier-3">
+                <div class="item-title">
+                    6. "Leave-One-Out" Sensitivity Scan
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Re-calculates P-value 12,000 times (removing 1 patient each time) to find leverage points.</div>
+                <div class="tech-tag">TECH: Massive Loop SQL</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    7. Timestamp Granularity Analysis
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Detects "Batch Entry" fraud where all patient data is entered on Friday afternoon.</div>
+                <div class="tech-tag">TECH: Temporal Clustering</div>
+            </div>
+
+            <div class="item-card tier-2">
+                <div class="item-title">
+                    8. Super-Responder Phenotyping
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Identifies hidden biological subgroups where drug efficacy is >90%.</div>
+                <div class="tech-tag">TECH: Multi-Dimensional Clustering</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    9. Visit Interval Variance Check
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Flags sites where every patient returns exactly on Day 21 (impossible in reality).</div>
+                <div class="tech-tag">TECH: Variance Analysis</div>
+            </div>
+
+            <div class="item-card tier-4">
+                <div class="item-title">
+                    10. Bone Pain Topology Map
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Maps the "shape" of pain over time (AUC) rather than just peak pain. Key for commercial claims.</div>
+                <div class="tech-tag">TECH: Topological Data Analysis</div>
+            </div>
+
+            <div class="item-card tier-3">
+                <div class="item-title">
+                    11. Missing Data Imputation Stress
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Tests 50 different imputation methods to prove result robustness to FDA.</div>
+                <div class="tech-tag">TECH: SQL Matrix Completion</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    12. "Perfect Patient" Detector
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Flags patients with 0 standard deviation in vital signs over 6 months.</div>
+                <div class="tech-tag">TECH: Zero-Variance Filtering</div>
+            </div>
+
+            <div class="item-card tier-2">
+                <div class="item-title">
+                    13. Placebo Drift Analysis
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Detects if the placebo arm in Poland is behaving differently than in Ukraine (Regional Bias).</div>
+                <div class="tech-tag">TECH: Geospatial Clustering</div>
+            </div>
+
+            <div class="item-card tier-4">
+                <div class="item-title">
+                    14. Competitor Comparative Topology
+                    <div class="rating">★★★☆☆</div>
+                </div>
+                <div class="impact">Compares the "shape" of Plinabulin recovery vs Pegfilgrastim recovery curves.</div>
+                <div class="tech-tag">TECH: Curve Similarity Scoring</div>
+            </div>
+
+            <div class="item-card tier-3">
+                <div class="item-title">
+                    15. Protocol Deviation Impact Map
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Quantifies exact P-value loss caused by protocol deviations.</div>
+                <div class="tech-tag">TECH: Causal Impact Analysis</div>
+            </div>
+
+            <div class="item-card tier-1">
+                <div class="item-title">
+                    16. Duplicate Patient Key Scan
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Uses hashing to find patients enrolled at multiple sites simultaneously (Professional Patients).</div>
+                <div class="tech-tag">TECH: SQL Hashing/Matching</div>
+            </div>
+
+             <div class="item-card tier-2">
+                <div class="item-title">
+                    17. Dose-Response Surface Modeling
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Maps efficacy across Age x Weight x Dose to find optimal inclusion criteria.</div>
+                <div class="tech-tag">TECH: 3D Surface Interpolation</div>
+            </div>
+
+             <div class="item-card tier-3">
+                <div class="item-title">
+                    18. Laboratory Assay Shift Detection
+                    <div class="rating">★★★☆☆</div>
+                </div>
+                <div class="impact">Detects if a specific central lab machine drifted in calibration over time.</div>
+                <div class="tech-tag">TECH: Time-Series Trend Analysis</div>
+            </div>
+
+             <div class="item-card tier-1">
+                <div class="item-title">
+                    19. Adverse Event Clustering
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="impact">Detects sites that under-report specific AEs (e.g., "Nausea" missing where expected).</div>
+                <div class="tech-tag">TECH: Frequency Pattern Matching</div>
+            </div>
+
+             <div class="item-card tier-4">
+                <div class="item-title">
+                    20. Health Economic Burden Model
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="impact">Calculates "Days out of Hospital" gained per patient for payer negotiations.</div>
+                <div class="tech-tag">TECH: Accumulator SQL Logic</div>
+            </div>
+
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: var(--text-dim); font-style: italic;">
+            (Items 21-40 available in full technical appendix)
+        </div>
+
+    </div>
+
+    <div class="cta-box">
+        <h2>Ready to Deploy the Risk Engine?</h2>
+        <p>We do not just analyze data. We audit the physics of your clinical reality.</p>
+        <a href="#" class="button">Request Pilot Analysis (€250k Engagement)</a>
+    </div>
+
+</div>
+
+</body>
+</html>
